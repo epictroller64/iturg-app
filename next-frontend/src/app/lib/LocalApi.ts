@@ -6,8 +6,8 @@ import { ProductPreviewDTO } from "./types/ProductPreviewDTO";
 const baseUrl = "http://localhost:8000/api"
 
 export const LocalApi = {
-    getProducts: async () => {
-        return await get<ProductPreviewDTO[]>("products");
+    getProducts: async (search: string, page: number, pageSize: number, sortBy: string, sortOrder: string) => {
+        return await get<ProductPreviewDTO[]>(`products?search=${search}&page=${page}&page_size=${pageSize}&sort_by=${sortBy}&sort_order=${sortOrder}`);
     },
     getProductDetails: async (id: string) => {
         return await get<Product>(`products/${id}`);

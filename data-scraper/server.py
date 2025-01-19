@@ -1,11 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import List
-from datetime import datetime
+from typing import List, Optional
 from repository.product import get_all_products_preview, get_product
 from models.Product import Product
 from models.ProductPreviewDTO import ProductPreviewDTO
+from fastapi import Query
 
 app = FastAPI()
 
@@ -21,11 +20,18 @@ app.add_middleware(
 
 
 @app.get("/api/products", response_model=List[ProductPreviewDTO])
-async def get_products():
+async def get_products(
+    search: Optional[str] = Query(None),
+    page: Optional[int] = Query(1),
+    page_size: Optional[int] = Query(10),
+    sort_by: Optional[str] = Query("updated_at"),
+    sort_order: Optional[str] = Query("desc"),
+):
     try:
-        products = get_all_products_preview()
-        return [ProductPreviewDTO.model_validate(product) for product in products] 
+        products = get_all_products_preview(search, page, page_size, sort_by, sort_order)
+        return products
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/products/{product_id}", response_model=Product)

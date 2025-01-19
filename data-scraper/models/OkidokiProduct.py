@@ -7,7 +7,7 @@ class ScrapedOkidokiProduct:
     price: float
     description: str
     images: list[str]
-    category: str
+    category: list[str]
     brand: str
     seller_url: str
     product_url: str

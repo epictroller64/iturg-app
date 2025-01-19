@@ -1,4 +1,6 @@
 from curl_cffi import requests
+import json
+import re
 from bs4 import BeautifulSoup
 from models.OkidokiProduct import PreScrapedOkidokiProduct, ScrapedOkidokiProduct
 from factory import LoggerFactory
@@ -20,7 +22,7 @@ class OkidokiScraper:
         self.config = config
         self.logger = LoggerFactory.get_logger("okidoki")
     
-    def scrape_product_details(self, product: PreScrapedOkidokiProduct):
+    def scrape_product_details(self, product: PreScrapedOkidokiProduct) -> ScrapedOkidokiProduct:
         url = f"https://www.okidoki.ee{product.href}"
 
         retry_count = 0
@@ -46,8 +48,20 @@ class OkidokiScraper:
         product_name = product.name
         product_price = soup.find('p', class_='price').text.strip()
         product_description = str(soup.find('div', id='description'))
-        product_images = [img['src'] for img in soup.find_all('img', attrs={'data-photos': 'main-list'})]
-        product_category = soup.find('ul', class_='breadcrumbs').find_all('li')[1].find('span').text.strip()
+
+        # Extract full size photo URLs from script tag
+        script_tag = soup.find('script', string=lambda text: text and 'photosList' in text)
+        product_images = []
+        if script_tag:
+            # Extract the JSON array from the script
+            photos_list_str = re.search(r'var photosList = (\[.*?\]),', script_tag.string).group(1)
+            photos_list = json.loads(photos_list_str)
+            # Extract full size photo URLs
+            product_images = [photo['photoFullsize']['src'] for photo in photos_list]
+        product_category = []
+        breadcrumbs = soup.find('ul', class_='breadcrumbs')
+        if breadcrumbs:
+            product_category = [li.find('span', itemprop='name').text.strip() for li in breadcrumbs.find_all('li', attrs={'itemprop': 'itemListElement'})]
         seller_url = soup.find('div', class_='user-block__popup-footer').find('a')['href']
         location = soup.find('span', attrs={'itemprop': 'address'}).text.strip()
         time = soup.find('div', class_='stats-views__item').find('span').text.strip()

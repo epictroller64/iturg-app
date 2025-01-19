@@ -1,5 +1,19 @@
 from scraper import Scraper
 from models.ScraperConfig import ScraperConfig
+from parser import Parser
+from dotenv import load_dotenv
+import asyncio
+from group_pipeline import Classifier
+load_dotenv(override=True)
 
-scraper = Scraper(ScraperConfig(max_pages=-1))
-scraper.scrape_apple_products()
+import os
+
+
+#scraper = Scraper(ScraperConfig(max_pages=1))
+#asyncio.run(scraper.scrape_apple_products())
+
+classifier = Classifier()
+asyncio.run(classifier.test())
+
+#parser = Parser('')
+#parser.test_parse()
