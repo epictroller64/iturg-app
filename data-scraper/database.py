@@ -96,11 +96,22 @@ async def setup_database():
                    "product_table_id INTEGER NOT NULL "
                    ")"
                    )
+
+    # Level 2 groups are created based on the level 1 groups, a more precise grouping
     await cursor.execute(""
-                   "CREATE TABLE IF NOT EXISTS level1_groups ( "
+                   "CREATE TABLE IF NOT EXISTS level2_groups ( "
                    "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                   "group_value TEXT NOT NULL, "
-                   "product_table_id INTEGER NOT NULL "
+                   "product_table_id INTEGER NOT NULL, "
+                   "device TEXT, "
+                   "chip TEXT, "
+                   "ram TEXT, "
+                   "screen_size TEXT, "
+                   "generation TEXT, "
+                   "storage TEXT, "
+                   "color TEXT, "
+                   "status TEXT, "
+                   "year TEXT, "
+                   "watch_mm TEXT "
                    ")"
                    )
     
