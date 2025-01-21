@@ -10,15 +10,15 @@ export default function HomeSearch() {
             Otsi kasutatud Apple tooteid
         </h1>
 
-        <div className="relative">
+        <div className="relative w-full items-center inline-flex">
             <input
                 type="text"
                 placeholder="Otsi tooteid"
-                className="w-full px-6 py-4 text-lg rounded-full border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                className="p-form-text p-4 w-full absolute"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
             />
-            <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-500 text-white px-8 py-2 rounded-full hover:bg-blue-600 transition">
+            <button className="absolute right-2 p-btn p-btn-round p-prim-col">
                 Otsi
             </button>
         </div>

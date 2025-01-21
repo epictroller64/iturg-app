@@ -1,4 +1,5 @@
 from models.OkidokiProduct import ScrapedOkidokiProduct
+from bs4 import BeautifulSoup
 from models.PriceHistory import PriceHistory
 from datetime import datetime, timedelta
 from factory import LoggerFactory
@@ -31,7 +32,7 @@ class ProductPipeline:
             product_id=okidoki_product.id,
             platform="okidoki",
             name=okidoki_product.name,
-            description=okidoki_product.description,
+            description=self.cleanup_product(okidoki_product.description),
             category=okidoki_product.category,
             brand=okidoki_product.brand,
             seller_url=okidoki_product.seller_url,
@@ -58,3 +59,10 @@ class ProductPipeline:
                 await upsert_product(full_product)
         self.logger.info(f"Processed product {okidoki_product.id} with price {okidoki_product.price}")
         
+    def cleanup_product(self, product: Product):
+        soup = BeautifulSoup(product.description, 'html.parser')
+        # remove unneeded elements 
+        for element in soup.select('.a.hidden.description-trigger, .item-specifics, .location'):
+            element.decompose()
+        product.description = str(soup)
+        return product

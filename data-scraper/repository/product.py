@@ -5,7 +5,7 @@ from models.Product import Product
 import json
 from typing import Optional, List
 from models.ProductPreviewDTO import ProductPreviewDTO
-import asyncio
+from models.PriceHistory import PriceHistory
 
 async def get_all_products_preview(search: Optional[str] = None, page: Optional[int] = 1, page_size: Optional[int] = 10, sort_by: Optional[str] = "updated_at", sort_order: Optional[str] = "desc") -> List[ProductPreviewDTO]:
     """Get all products from the database with their latest prices"""
@@ -30,31 +30,44 @@ async def get_all_products_preview(search: Optional[str] = None, page: Optional[
     pagination = f"LIMIT {page_size} OFFSET {(page - 1) * page_size}"
     
     query = f'''
-        SELECT p.id, p.product_id, p.name, ph.price, p.images, p.platform 
+        SELECT p.id, p.product_id, p.name, ph.price, p.images, p.platform, l2g.device, l2g.chip, l2g.ram, l2g.screen_size, l2g.generation, l2g.storage, l2g.color, l2g.status, l2g.year, l2g.watch_mm
         FROM products AS p 
+        JOIN level2_groups l2g ON p.id = l2g.product_table_id
         LEFT JOIN (
-            SELECT product_id, platform, price, found_at
+            SELECT product_table_id,  price, found_at
             FROM price_history
-            WHERE (product_id, platform, found_at) IN (
-                SELECT product_id, platform, MAX(found_at)
+            WHERE (product_table_id, found_at) IN (
+                SELECT product_table_id, MAX(found_at)
                 FROM price_history
-                GROUP BY product_id, platform
+                GROUP BY product_table_id
             )
-        ) ph ON p.id = ph.product_id AND p.platform = ph.platform
+        ) ph ON p.id = ph.product_table_id
         {where_sql}
         {order_by}
         {pagination}
     '''
     
     rows = await select(query, params)
-    
+    if not rows:
+        return []
+        
     return [ProductPreviewDTO(
         id=row['id'],
-        product_id=row['product_id'],
+        product_table_id=row['product_id'],
         name=row['name'],
         price=float(row['price']) if row['price'] is not None else 0.0,
         imageUrl=json.loads(row['images'])[0] if row['images'] and json.loads(row['images']) else "",
-        platform=row['platform']
+        platform=row['platform'],
+        device=row['device'],
+        chip=row['chip'],
+        ram=row['ram'],
+        screen_size=row['screen_size'],
+        generation=row['generation'],
+        storage=row['storage'],
+        color=row['color'],
+        status=row['status'],
+        year=row['year'],
+        watch_mm=row['watch_mm']
     ) for row in rows]
 
 async def get_all_products() -> List[Product]:
@@ -65,7 +78,26 @@ async def get_all_products() -> List[Product]:
         row_dict = dict(row)
         row_dict['images'] = json.loads(row_dict['images'])
         row_dict['category'] = json.loads(row_dict['category'])
-        products.append(Product(**row_dict))
+        product = Product(
+            id=row_dict['id'],
+            product_id=row_dict['product_id'],
+            platform=row_dict['platform'],
+            name=row_dict['name'],
+            description=row_dict['description'],
+            category=row_dict['category'],
+            brand=row_dict['brand'],
+            seller_url=row_dict['seller_url'],
+            product_url=row_dict['product_url'],
+            location=row_dict['location'],
+            created_at=datetime.fromisoformat(row_dict['created_at']),
+            updated_at=datetime.fromisoformat(row_dict['updated_at']),
+            images=row_dict['images'],
+            price_history=[]
+        )
+        # fill price history
+        price_history_rows = await select('SELECT * FROM price_history WHERE product_table_id = ?', (row_dict['id'],))
+        product.price_history = [PriceHistory(id=row[0], product_table_id=row[1], price=row[2], found_at=row[3]) for row in price_history_rows]
+        products.append(product)
     return products
 
 async def get_product_by_product_id_and_platform(product_id: str, platform: str, prefer_cache: bool = True) -> Optional[Product]:
@@ -91,7 +123,8 @@ async def get_product_by_product_id_and_platform(product_id: str, platform: str,
                 location=result[9],
                 created_at=datetime.fromisoformat(result[10]),
                 updated_at=datetime.fromisoformat(result[11]),
-                images=json.loads(result[12])
+                images=json.loads(result[12]),
+                price_history=[]
             )
             cache_store.set_product_by_product_id_and_platform(product_id, platform, product)
             return product
@@ -108,7 +141,7 @@ async def get_product(id: int, prefer_cache: bool = True) -> Optional[Product]:
             return product
             
     try:
-        rows = await select('SELECT * FROM products WHERE id = ?', (id,))
+        rows = await select('SELECT * FROM products  WHERE products.id = ?', (id,))
         if rows and len(rows) > 0:
             result = rows[0]
             # Convert tuple to Product object
@@ -125,8 +158,14 @@ async def get_product(id: int, prefer_cache: bool = True) -> Optional[Product]:
                 location=result[9],
                 created_at=datetime.fromisoformat(result[10]),
                 updated_at=datetime.fromisoformat(result[11]),
-                images=json.loads(result[12])
+                images=json.loads(result[12]),
+                price_history=[]
             )
+
+            # Get price history
+            price_history_rows = await select('SELECT * FROM price_history WHERE product_table_id = ?', (product.id,))
+            product.price_history = [PriceHistory(id=row[0], product_table_id=row[1], price=row[2], found_at=row[3]) for row in price_history_rows]
+
             cache_store.set_product(product.id, product)
             return product
         return None
@@ -167,6 +206,43 @@ async def upsert_product(product: Product) -> int:
         raise e
 
 
+async def get_products_by_level2_group(field: str, value: str) -> List[Product]:
+    valid_fields = {'device', 'chip', 'ram', 'screen_size', 'generation', 'storage', 'color', 'status', 'year', 'watch_mm'}
+    
+    if field not in valid_fields:
+        raise ValueError(f"Invalid field: {field}. Allowed fields are: {', '.join(valid_fields)}")
+    
+    query = f'''
+        SELECT p.* 
+        FROM products p
+        JOIN level2_groups l2g ON p.id = l2g.product_table_id 
+        WHERE l2g.{field} = ?
+    '''
+    
+    rows = await select(query, (value,))
+    
+    products = []
+    for row in rows:
+        row_dict = dict(row)
+        row_dict['images'] = json.loads(row_dict['images'])
+        row_dict['category'] = json.loads(row_dict['category'])
+        products.append(Product(
+            id=row_dict['id'],
+            product_id=row_dict['product_id'],
+            platform=row_dict['platform'],
+            name=row_dict['name'],
+            description=row_dict['description'],
+            category=row_dict['category'],
+            brand=row_dict['brand'],
+            seller_url=row_dict['seller_url'],
+            product_url=row_dict['product_url'],
+            location=row_dict['location'],
+            created_at=datetime.fromisoformat(row_dict['created_at']),
+            updated_at=datetime.fromisoformat(row_dict['updated_at']),
+            images=row_dict['images'],
+            price_history=[]
+        ))
+    return products
 
 cache_store = CacheStore([])
 
@@ -174,5 +250,3 @@ async def init_cache():
     products = await get_all_products()
     global cache_store
     cache_store = CacheStore(products)
-
-asyncio.run(init_cache())

@@ -7,5 +7,15 @@ class ProductPreviewDTO(BaseModel):
     price: float
     imageUrl: str
     platform: str
+    device: str
+    chip: str
+    ram: str
+    screen_size: str
+    generation: str
+    storage: str
+    color: str
+    status: str
+    year: str
+    watch_mm: str
 
 

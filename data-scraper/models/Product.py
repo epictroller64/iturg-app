@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from models.PriceHistory import PriceHistory
 from datetime import datetime
 
 class Product(BaseModel):
@@ -15,6 +16,7 @@ class Product(BaseModel):
     created_at: datetime | None = None
     updated_at: datetime | None = None
     images: list[str] # JSON array of image urls
+    price_history: list[PriceHistory]
 
     model_config = {
         "from_attributes": True  # This replaces the old orm_mode=True

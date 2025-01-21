@@ -4,16 +4,18 @@ from parser import Parser
 from dotenv import load_dotenv
 import asyncio
 from group_pipeline import Classifier
+from data_fix import fix_descriptions
 load_dotenv(override=True)
-
 import os
 
 
-scraper = Scraper(ScraperConfig(max_pages=-1))
-asyncio.run(scraper.scrape_apple_products())
+#scraper = Scraper(ScraperConfig(max_pages=-1))
+#asyncio.run(scraper.scrape_apple_products())
 
 #classifier = Classifier()
 #asyncio.run(classifier.test())
 
 #parser = Parser('')
 #parser.test_parse()
+
+asyncio.run(fix_descriptions())

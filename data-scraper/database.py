@@ -32,9 +32,12 @@ async def execute(query: str, params: tuple = ()):
         await conn.close()
         return lastrowid
     except Exception as e:
-        await conn.rollback()
-        await conn.close()
-        await cursor.close()
+        try:
+            await conn.rollback()
+            await conn.close()
+            await cursor.close()
+        except Exception:
+            pass
         raise e
 
 
@@ -46,9 +49,11 @@ async def select(query: str, params: tuple = ()) -> List[Row]:
         cursor.row_factory = aiosqlite.Row
         await cursor.execute(query, params)
         rows = await cursor.fetchall()
+        await cursor.close()
         await conn.close()
         return rows
     except Exception as e:
+        print(e)
         await conn.rollback()
         await conn.close()
         await cursor.close()
@@ -117,5 +122,3 @@ async def setup_database():
     
     await conn.commit()
     await conn.close()
-
-asyncio.run(setup_database())
