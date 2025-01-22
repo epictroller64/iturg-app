@@ -4,7 +4,7 @@ from parser import Parser
 from dotenv import load_dotenv
 import asyncio
 from group_pipeline import Classifier
-from data_fix import fix_descriptions
+from data_fix import recreate_level1_groups
 load_dotenv(override=True)
 import os
 
@@ -18,4 +18,4 @@ import os
 #parser = Parser('')
 #parser.test_parse()
 
-asyncio.run(fix_descriptions())
+asyncio.run(recreate_level1_groups())

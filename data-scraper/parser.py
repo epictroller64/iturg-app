@@ -29,7 +29,7 @@ class Parser:
         """Parse product title using OpenAI to extract key features and group products"""
 
         response = await self.openai.beta.chat.completions.parse(
-            model="gpt-4o-mini",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are a product classifier that extracts product technical features from product titles. Return them as an JSON array of strings. Titles are in Estonian. Extract only main features. Most are Apple products."},
                 {"role": "user", "content": product.name}

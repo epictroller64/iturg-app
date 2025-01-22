@@ -128,15 +128,17 @@ class Classifier:
 
     def classify_chip(self, features: list[str], result: Result) -> Result:
         for feature in features:
-            m_chip_pattern = r"m[1-4](?:\s*(?:pro|pro\s*max))?"
-            if re.search(m_chip_pattern, feature.lower()):
-                result.chip = feature.lower()
+            m_chip_pattern = r"(m[1-4](?:\s*(?:pro|pro\s*max)?))(?:\s|$)"
+            match = re.search(m_chip_pattern, feature.lower())
+            if match:
+                result.chip = match.group(1).replace(" ", "")  
                 features.remove(feature)
                 break
 
-            intel_pattern = r"(?:intel\s*)?(?:core\s*)?i[3579](?:-\d{4,5}[a-z]*)?"
-            if re.search(intel_pattern, feature.lower()):
-                result.chip = feature.lower()
+            intel_pattern = r"((?:i[3579])(?:-\d{4,5}[a-z]*)?)"
+            match = re.search(intel_pattern, feature.lower())
+            if match:
+                result.chip = match.group(1)
                 features.remove(feature)
                 break
         return result
