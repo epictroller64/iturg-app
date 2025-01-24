@@ -1,6 +1,7 @@
 
 export type ProductPreviewDTO = {
-    id: string;
+    id: number;
+    platform_product_id: string;
     name: string;
     price: number;
     imageUrl: string;

@@ -26,13 +26,13 @@ class ProductPipeline:
 
     async def process_okidoki_product(self, okidoki_product: ScrapedOkidokiProduct):
         """Process an Okidoki product and insert it into the database, or insert price history if it already exists"""
-        existing_product = await get_product_by_product_id_and_platform(okidoki_product.id, "okidoki", prefer_cache=True)
+        existing_product = await get_product_by_product_id_and_platform(okidoki_product.id, "okidoki", prefer_cache=False)
         full_product = Product(
             id=0,
             product_id=okidoki_product.id,
             platform="okidoki",
             name=okidoki_product.name,
-            description=self.cleanup_product(okidoki_product.description),
+            description=self.cleanup_product(okidoki_product),
             category=okidoki_product.category,
             brand=okidoki_product.brand,
             seller_url=okidoki_product.seller_url,
@@ -40,7 +40,8 @@ class ProductPipeline:
             location=okidoki_product.location,
             created_at=datetime.now(),
             updated_at=datetime.now(),
-            images=okidoki_product.images
+            images=okidoki_product.images,
+            price_history=[]
         )
         if not existing_product:
             product_table_id = await upsert_product(full_product)
@@ -59,10 +60,10 @@ class ProductPipeline:
                 await upsert_product(full_product)
         self.logger.info(f"Processed product {okidoki_product.id} with price {okidoki_product.price}")
         
-    def cleanup_product(self, product: Product):
+    def cleanup_product(self, product: ScrapedOkidokiProduct):
         soup = BeautifulSoup(product.description, 'html.parser')
         # remove unneeded elements 
-        for element in soup.select('.a.hidden.description-trigger, .item-specifics, .location'):
+        for element in soup.select('.a.hidden.description-trigger, .item-specifics, .location, .item-specifics-list'):
             element.decompose()
         product.description = str(soup)
-        return product
+        return product.description

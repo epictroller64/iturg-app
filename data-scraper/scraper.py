@@ -1,4 +1,4 @@
-from okidoki import OkidokiScraper
+from okidoki import OkidokiScraper, PreScrapedOkidokiProduct
 from product_pipeline import ProductPipeline
 from pricehistory_pipeline import PriceHistoryPipeline
 from models.ScraperConfig import ScraperConfig
@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from factory import LoggerFactory
 from repository.product import get_product_by_product_id_and_platform
 import time
+from typing import List
 
 class Scraper:
 
@@ -29,7 +30,7 @@ class Scraper:
        while True:
             if self.next_scrape_time < datetime.now():
                 self.logger.info("Starting apple scraper at " + str(datetime.now()))
-                await self.scrape_okdioki_products("apple")
+                await self.scrape_okdioki_products(["apple", "iphone", "imac", "macbook", "ipad"])
                 # Add more providers later
                 self.on_scrape_complete()
             else:
@@ -37,9 +38,21 @@ class Scraper:
                 time.sleep(1)
 
         
-    async def scrape_okdioki_products(self, keyword: str):
-        okidoki_products = self.okidoki_scraper.scrape_by_keyword(keyword)
+    async def scrape_okdioki_products(self, keywords: List[str]):
+        okidoki_products: List[PreScrapedOkidokiProduct] = []
+        ## Run through all keywords and scrape products
+        for keyword in keywords:
+            okidoki_products.extend(self.okidoki_scraper.scrape_by_keyword(keyword))
+
+        ## Filter out duplicates
+        filtered_okidoki_products: List[PreScrapedOkidokiProduct] = []
         for okidoki_product in okidoki_products:
+            if okidoki_product.id not in [product.id for product in filtered_okidoki_products]:
+                filtered_okidoki_products.append(okidoki_product)
+
+        self.logger.info(f"Found {len(filtered_okidoki_products)} unique products")
+        ## Process products
+        for okidoki_product in filtered_okidoki_products:
             # Check if product has been recently scraped
             existing_product = await get_product_by_product_id_and_platform(okidoki_product.id, "okidoki", prefer_cache=True)
             if existing_product and existing_product.updated_at > datetime.now() - timedelta(hours=self.config.hours_between_updates):

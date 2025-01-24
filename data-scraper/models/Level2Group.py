@@ -1,13 +1,9 @@
 from pydantic import BaseModel
 
 
-class ProductPreviewDTO(BaseModel):
+class Level2Group(BaseModel):
     id: int
-    platform_product_id: str
-    name: str
-    price: float
-    imageUrl: str
-    platform: str
+    product_table_id: int
     device: str
     chip: str
     ram: str
@@ -18,5 +14,3 @@ class ProductPreviewDTO(BaseModel):
     status: str
     year: str
     watch_mm: str
-
-

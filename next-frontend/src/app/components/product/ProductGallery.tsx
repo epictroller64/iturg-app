@@ -5,7 +5,7 @@ import { useState } from 'react'
 export default function ProductGallery({ images, name }: { images: string[], name: string }) {
     const [selectedImage, setSelectedImage] = useState(images[0])
     return <div>
-        <div className="flex justify-center items-center relative h-[40vw] p-card">
+        <div className="flex justify-center items-center relative h-[40vw] p-card overflow-hidden">
             <Image
                 fill
                 src={selectedImage}
@@ -17,7 +17,7 @@ export default function ProductGallery({ images, name }: { images: string[], nam
             {images.map((image: string, index: number) => (
                 <div key={index}
                     onClick={() => setSelectedImage(image)}
-                    className="flex justify-center items-center relative h-[100px] cursor-pointer p-card">
+                    className="flex justify-center items-center relative h-[100px] cursor-pointer p-card overflow-hidden hover:border-1 hover:border-blue-500">
                     <Image
                         fill
                         src={image}

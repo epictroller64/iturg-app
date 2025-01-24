@@ -5,27 +5,73 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { FiSmartphone } from "react-icons/fi";
 import { FiCpu } from "react-icons/fi";
+import { FiServer } from "react-icons/fi";
+import { FiTablet } from "react-icons/fi";
+import { FiWatch } from "react-icons/fi";
+
 
 
 export function ProductCard({ product }: { product: ProductPreviewDTO }) {
     return <div className="p-card h-[75vh] flex flex-col">
         <div className="relative w-full h-[60%]">
             <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
+            <div className="absolute top-5 left-5  text-2xl p-blur-1 font-bold text-black px-2 rounded-full">{product.price} €</div>
         </div>
         <div className="flex flex-col justify-between p-2 h-[40%]">
             <div className="flex flex-col justify-between h-[80%]">
-                <h3 className="p-card-title">{product.name}</h3>
-                <p className="p-card-text">{product.price} €</p>
+                <Link href={`/product/${product.product_table_id}`} className="!text-xl hover:cursor-pointer">{product.name}</Link>
+                <div className="h-[1px] bg-gray-200 w-full"></div>
             </div>
             <div className="flex flex-col gap-2 h-[20%]">
                 <Platform platform={product.platform} />
-                <div className="flex flex-row gap-2">
+                <div className="flex flex-row gap-2 items-center">
+                    <Color color={product.color} />
                     <Device device={product.device} />
                     <Chip chip={product.chip} />
                 </div>
             </div>
         </div>
     </div>
+}
+// Render product color as a small circle
+function Color({ color }: { color: string }) {
+    switch (color.toLowerCase()) {
+        case "midnight":
+            return <div className="w-4 h-4 rounded-full bg-[#1C1C1E]" />
+        case "black":
+        case "must":
+            return <div className="w-4 h-4 rounded-full bg-black" />
+        case "space gray":
+        case "space grey":
+            return <div className="w-4 h-4 rounded-full bg-[#8E8E93]" />
+        case "red":
+        case "punane":
+            return <div className="w-4 h-4 rounded-full bg-red-600" />
+        case "gold":
+            return <div className="w-4 h-4 rounded-full bg-[#FFD700]" />
+        case "white":
+        case "valge":
+            return <div className="w-4 h-4 rounded-full bg-white border border-gray-200" />
+        case "green":
+            return <div className="w-4 h-4 rounded-full bg-green-600" />
+        case "desert titanium":
+            return <div className="w-4 h-4 rounded-full bg-[#DBB59C]" />
+        case "black titanium":
+            return <div className="w-4 h-4 rounded-full bg-[#2F2F2F]" />
+        case "natural titanium":
+            return <div className="w-4 h-4 rounded-full bg-[#E3C4A6]" />
+        case "pink":
+            return <div className="w-4 h-4 rounded-full bg-pink-400" />
+        case "blue":
+        case "sinine":
+            return <div className="w-4 h-4 rounded-full bg-blue-600" />
+        case "starlight":
+            return <div className="w-4 h-4 rounded-full bg-[#FAF7F2]" />
+        case "purple":
+            return <div className="w-4 h-4 rounded-full bg-purple-600" />
+        default:
+            return null
+    }
 }
 
 function Chip({ chip }: { chip: string }) {
@@ -38,6 +84,16 @@ function Device({ device }: { device: string }) {
     if (device.toLowerCase().startsWith("iphone")) {
         return <div className="text-gray-500 font-bold flex flex-row items-center gap-1"><FiSmartphone /> {device}</div>
     }
+    if (device.toLowerCase().startsWith("macbook")) {
+        return <div className="text-gray-500 font-bold flex flex-row items-center gap-1"><FiServer /> {device}</div>
+    }
+    if (device.toLowerCase().startsWith("ipad")) {
+        return <div className="text-gray-500 font-bold flex flex-row items-center gap-1"><FiTablet /> {device}</div>
+    }
+    if (device.toLowerCase().startsWith("watch")) {
+        return <div className="text-gray-500 font-bold flex flex-row items-center gap-1"><FiWatch /> {device}</div>
+    }
+    return null
 }
 
 function Platform({ platform }: { platform: string }) {
@@ -103,7 +159,7 @@ export function ProductCard2({ product }: { product: ProductPreviewDTO }) {
                             whileTap={{ scale: 0.95 }}
                         >
                             <Link
-                                href={`/product/${product.id}`}
+                                href={`/product/${product.product_table_id}`}
                                 className="p-btn p-prim-col"
                             >
                                 Vaata üksikasju →

@@ -11,19 +11,32 @@ export const LocalApi = {
     },
     getProductDetails: async (id: string) => {
         return await get<Product>(`products/${id}`);
+    },
+    getSimilarProducts: async (id: string) => {
+        return await get<ProductPreviewDTO[]>(`similar/products/${id}`);
     }
 }
 
 
 async function get<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${baseUrl}/${endpoint}`);
-    return response.json();
+    try {
+        const response = await fetch(`${baseUrl}/${endpoint}`);
+        return response.json();
+    } catch (error) {
+        console.log('Error fetching data:', error);
+        throw error;
+    }
 }
 
 async function post<T>(endpoint: string, body: T): Promise<T> {
-    const response = await fetch(`${baseUrl}/${endpoint}`, {
-        method: "POST",
-        body: JSON.stringify(body),
-    });
-    return response.json();
+    try {
+        const response = await fetch(`${baseUrl}/${endpoint}`, {
+            method: "POST",
+            body: JSON.stringify(body),
+        });
+        return response.json();
+    } catch (error) {
+        console.log('Error posting data:', error);
+        throw error;
+    }
 }

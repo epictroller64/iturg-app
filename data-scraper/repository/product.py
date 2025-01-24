@@ -1,11 +1,12 @@
 from datetime import datetime
 from cache_store import CacheStore
-from database import get_db_connection, select, execute
+from database import select, execute
 from models.Product import Product
 import json
 from typing import Optional, List
 from models.ProductPreviewDTO import ProductPreviewDTO
 from models.PriceHistory import PriceHistory
+from repository.groups import get_level2_groups_by_product_table_id, get_level2_groups_by_device
 
 async def get_all_products_preview(search: Optional[str] = None, page: Optional[int] = 1, page_size: Optional[int] = 10, sort_by: Optional[str] = "updated_at", sort_order: Optional[str] = "desc") -> List[ProductPreviewDTO]:
     """Get all products from the database with their latest prices"""
@@ -52,8 +53,8 @@ async def get_all_products_preview(search: Optional[str] = None, page: Optional[
         return []
         
     return [ProductPreviewDTO(
+        platform_product_id=row['product_id'],
         id=row['id'],
-        product_table_id=row['product_id'],
         name=row['name'],
         price=float(row['price']) if row['price'] is not None else 0.0,
         imageUrl=json.loads(row['images'])[0] if row['images'] and json.loads(row['images']) else "",
@@ -133,15 +134,15 @@ async def get_product_by_product_id_and_platform(product_id: str, platform: str,
         print(f"Error getting product by product_id and platform: {e}")
         return None
 
-async def get_product(id: int, prefer_cache: bool = True) -> Optional[Product]:
+async def get_product(product_table_id: int, prefer_cache: bool = True) -> Optional[Product]:
     """Get product from the database based on id"""
     if prefer_cache:
-        product = cache_store.get_product(id)
+        product = cache_store.get_product(product_table_id)
         if product:
             return product
             
     try:
-        rows = await select('SELECT * FROM products  WHERE products.id = ?', (id,))
+        rows = await select('SELECT * FROM products  WHERE id = ?', (product_table_id,))
         if rows and len(rows) > 0:
             result = rows[0]
             # Convert tuple to Product object
@@ -243,6 +244,101 @@ async def get_products_by_level2_group(field: str, value: str) -> List[Product]:
             price_history=[]
         ))
     return products
+
+async def get_similar_products(product_table_id: int) -> List[ProductPreviewDTO]:
+    """Get similar products based on the product_table_id, excluding the original product"""
+    # get original product level2 groups
+    original_product_groups = await get_level2_groups_by_product_table_id(product_table_id)
+    if not original_product_groups or len(original_product_groups) == 0:
+        return []
+    product_group = original_product_groups[0]
+    if len(product_group.device) == 0:
+        return []
+    
+    price_subquery = """
+        LEFT JOIN (
+            SELECT product_table_id, price, found_at
+            FROM price_history
+            WHERE (product_table_id, found_at) IN (
+                SELECT product_table_id, MAX(found_at)
+                FROM price_history
+                GROUP BY product_table_id
+            )
+        ) ph ON p.id = ph.product_table_id
+    """
+    
+    if product_group.device.lower().startswith("iphone"):
+        ## gather same model iphones
+        query = f"""
+            SELECT p.id, p.product_id, p.name, ph.price, p.images, p.platform, 
+                   l2g.device, l2g.chip, l2g.ram, l2g.screen_size, l2g.generation, 
+                   l2g.storage, l2g.color, l2g.status, l2g.year, l2g.watch_mm 
+            FROM products p 
+            JOIN level2_groups l2g ON p.id = l2g.product_table_id
+            {price_subquery}
+            WHERE l2g.device = ? AND p.id != ?
+            LIMIT 10
+        """
+        rows = await select(query, (product_group.device, product_table_id))
+    elif product_group.device.lower().startswith("macbook"):
+        ## gather some based on the chip if it exists others add by random macbooks
+        if len(product_group.chip) > 0:
+            query = f"""
+                SELECT p.id, p.product_id, p.name, ph.price, p.images, p.platform,
+                       l2g.device, l2g.chip, l2g.ram, l2g.screen_size, l2g.generation,
+                       l2g.storage, l2g.color, l2g.status, l2g.year, l2g.watch_mm
+                FROM products p 
+                JOIN level2_groups l2g ON p.id = l2g.product_table_id
+                {price_subquery}
+                WHERE l2g.chip = ? AND LOWER(l2g.device) LIKE LOWER(?) AND p.id != ?
+                LIMIT 10
+            """
+            rows = await select(query, (product_group.chip, f"%{product_group.device}%", product_table_id))
+        else:
+            query = f"""
+                SELECT p.id, p.product_id, p.name, ph.price, p.images, p.platform,
+                       l2g.device, l2g.chip, l2g.ram, l2g.screen_size, l2g.generation,
+                       l2g.storage, l2g.color, l2g.status, l2g.year, l2g.watch_mm
+                FROM products p 
+                JOIN level2_groups l2g ON p.id = l2g.product_table_id
+                {price_subquery}
+                WHERE LOWER(l2g.device) LIKE LOWER(?) AND p.id != ?
+                LIMIT 10
+            """
+            rows = await select(query, (f"%{product_group.device}%", product_table_id))
+    else:
+        # Only gather same device
+        query = f"""
+            SELECT p.id, p.product_id, p.name, ph.price, p.images, p.platform,
+                   l2g.device, l2g.chip, l2g.ram, l2g.screen_size, l2g.generation,
+                   l2g.storage, l2g.color, l2g.status, l2g.year, l2g.watch_mm
+            FROM products p 
+            JOIN level2_groups l2g ON p.id = l2g.product_table_id
+            {price_subquery}
+            WHERE LOWER(l2g.device) LIKE LOWER(?) AND p.id != ?
+            LIMIT 10
+        """
+        rows = await select(query, (f"%{product_group.device}%", product_table_id))
+
+    return [ProductPreviewDTO(
+        id=row['id'],
+        platform_product_id=row['product_id'],
+        name=row['name'],
+        price=float(row['price']) if row['price'] is not None else 0.0,
+        imageUrl=json.loads(row['images'])[0] if row['images'] and json.loads(row['images']) else "",
+        platform=row['platform'],
+        device=row['device'],
+        chip=row['chip'],
+        ram=row['ram'],
+        screen_size=row['screen_size'],
+        generation=row['generation'],
+        storage=row['storage'],
+        color=row['color'],
+        status=row['status'],
+        year=row['year'],
+        watch_mm=row['watch_mm']
+    ) for row in rows]
+
 
 cache_store = CacheStore([])
 

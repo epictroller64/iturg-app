@@ -209,13 +209,13 @@ class Classifier:
     def is_airpods(self, features: list[str], result: Result) -> Result:
         for feature in features:
             if "airpods" in feature.lower():
-                result.device = "airpods"
+                result.device = "Airpods"
                 if "airpods 2" in feature.lower():
-                    result.device = "airpods 2"
+                    result.device = "Airpods 2"
                 elif "airpods 3" in feature.lower():
-                    result.device = "airpods 3"
+                    result.device = "Airpods 3"
                 elif "airpods pro" in feature.lower():
-                    result.device = "airpods pro"
+                    result.device = "Airpods Pro"
                 features.remove(feature)
                 break
         return result
@@ -223,7 +223,7 @@ class Classifier:
     def is_apple_tv(self, features: list[str], result: Result) -> Result:
         for feature in features:
             if "apple tv" in feature.lower():
-                result.device = "apple tv"
+                result.device = "Apple TV"
                 features.remove(feature)
                 break
         return result
@@ -231,11 +231,11 @@ class Classifier:
     def is_watch(self, features: list[str], result: Result) -> Result:
         for feature in features:
             if "watch" in feature.lower():
-                result.device = "watch"
+                result.device = "Watch"
                 if "se" in feature.lower():
-                    result.device = f"{result.device} se"
+                    result.device = f"{result.device} SE"
                 elif "se2" in feature.lower():
-                    result.device = f"{result.device} se2"
+                    result.device = f"{result.device} SE2"
                 features.remove(feature)
                 break
         return result
@@ -243,7 +243,7 @@ class Classifier:
     def is_imac(self, features: list[str], result: Result) -> Result:
         for feature in features:
             if "imac" in feature.lower():
-                result.device = "imac"
+                result.device = "iMac"
                 features.remove(feature)
                 break
         return result
@@ -251,49 +251,50 @@ class Classifier:
     def is_ipad(self, features: list[str], result: Result) -> Result:
         for feature in features:
             if "ipad" in feature.lower():
-                result.device = "ipad"
+                result.device = "iPad"
                 if "pro" in feature.lower():
-                    result.device = "ipad pro"
+                    result.device = "iPad Pro"
                     ipad_pattern = r"ipad\s+pro\s*(\d+)"
                     match = re.search(ipad_pattern, feature.lower())
                     if match:
-                        result.device = f"ipad pro {match.group(1)}"
+                        result.device = f"iPad Pro {match.group(1)}"
                 elif "mini" in feature.lower():
-                    result.device = "ipad mini"
+                    result.device = "iPad Mini"
                     ipad_pattern = r"ipad\s+mini\s*(\d+)"
                     match = re.search(ipad_pattern, feature.lower())
                     if match:
                         result.device = f"ipad mini {match.group(1)}"
                 elif "air" in feature.lower():
-                    result.device = "ipad air"
+                    result.device = "iPad Air"
                     ipad_pattern = r"ipad\s+air\s*(\d+)"
                     match = re.search(ipad_pattern, feature.lower())
                     if match:
-                        result.device = f"ipad air {match.group(1)}"
+                        result.device = f"iPad Air {match.group(1)}"
                 features.remove(feature)
                 break
         return result
     
     def classify_color(self, features: list[str], result: Result) -> Result:
         matches = {
-            "midnight": "midnight",
-            "black": "must",
-            "space gray": "space-grey",
-            "must": "must", 
-            "red": "punane",
-            "gold": "kuldne",
-            "punane": "punane",
-            "white": "valge",
-            "valge": "valge",
-            "space grey": "space-grey",
-            "green": "roheline",
-            "desert titanium": "desert-titanium",
-            "black titanium": "must-titaanium",
-            "natural titanium": "naturaalne-titaanium",
-            "pink": "pink",
-            "blue": "sinine",
-            "sinine": "sinine",
-            "starlight": "starlight",
+            "midnight": "Midnight",
+            "black": "Must",
+            "purple": "Purple",
+            "space gray": "Space-grey",
+            "must": "Must", 
+            "red": "Punane",
+            "gold": "Kuldne",
+            "punane": "Punane",
+            "white": "Valge",
+            "valge": "Valge",
+            "space grey": "Space-grey",
+            "green": "Roheline",
+            "desert titanium": "Desert-titanium",
+            "black titanium": "Must-titaanium",
+            "natural titanium": "Naturaalne-titaanium",
+            "pink": "Pink",
+            "blue": "Sinine",
+            "sinine": "Sinine",
+            "starlight": "Starlight",
         }
         for feature in features:
             for match in matches:
@@ -306,19 +307,19 @@ class Classifier:
     def is_iphone(self, features: list[str], result: Result) -> Result:
         for feature in features:
             if "iphone" in feature.lower():
-                result.device = "iphone"
+                result.device = "iPhone"
                 # Use regex to extract iPhone model number
                 iphone_pattern = r"(?:iphone\s*)?(\d{1,2})"
                 match = re.search(iphone_pattern, feature.lower())
                 if match:
                     model_number = match.group(1)
-                    result.device = f"iphone {model_number}"
+                    result.device = f"iPhone {model_number}"
                     if "pro" in feature.lower():
-                        result.device = f"{result.device} pro"
+                        result.device = f"{result.device} Pro"
                     if "max" in feature.lower():
-                        result.device = f"{result.device} max"
+                        result.device = f"{result.device} Max"
                     if "plus" in feature.lower():
-                        result.device = f"{result.device} plus"
+                        result.device = f"{result.device} Plus"
                 features.remove(feature)
                 break
         return result
@@ -332,11 +333,11 @@ class Classifier:
         for pattern in patterns:
             for feature in features:
                 if re.search(pattern, feature, re.IGNORECASE):
-                    result.device = "macbook"
+                    result.device = "MacBook"
                     if "pro" in feature.lower():
-                        result.device = "macbook pro"
+                        result.device = "MacBook Pro"
                     elif "air" in feature.lower():
-                        result.device = "macbook air"
+                        result.device = "MacBook Air"
                     features.remove(feature)
                     break
         return result
@@ -348,7 +349,7 @@ class Classifier:
             match = re.search(year_pattern, feature.lower())
             if match:
                 year = int(match.group(1))
-                if year > 2016:
+                if year > 2016 and year < 2025:
                     result.year = str(year)
                     features.remove(feature)
                     break

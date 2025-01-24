@@ -62,7 +62,11 @@ class OkidokiScraper:
         breadcrumbs = soup.find('ul', class_='breadcrumbs')
         if breadcrumbs:
             product_category = [li.find('span', itemprop='name').text.strip() for li in breadcrumbs.find_all('li', attrs={'itemprop': 'itemListElement'})]
-        seller_url = soup.find('div', class_='user-block__popup-footer').find('a')['href']
+        seller_url_element = soup.find('div', class_='user-block__popup-footer')
+        if seller_url_element:
+            seller_url = seller_url_element.find('a')['href']
+        else:
+            seller_url = ""
         location = soup.find('span', attrs={'itemprop': 'address'}).text.strip()
         time = soup.find('div', class_='stats-views__item').find('span').text.strip()
 

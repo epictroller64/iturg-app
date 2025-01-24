@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
-from repository.product import get_all_products_preview, get_product, get_products_by_level2_group
+from repository.product import get_all_products_preview, get_product, get_products_by_level2_group, get_similar_products
 from models.Product import Product
 from models.ProductPreviewDTO import ProductPreviewDTO
 from fastapi import Query
@@ -47,15 +47,24 @@ async def get_products_handler(
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/products/{product_id}", response_model=Product)
-async def get_product_handler(product_id: int):
+@app.get("/api/products/{product_table_id}", response_model=Product)
+async def get_product_handler(product_table_id: int):
     try:
-        product = await get_product(product_id)
+        product = await get_product(product_table_id)
         if product is None:
             raise HTTPException(status_code=404, detail="Product not found")
             
         return Product.model_validate(product)
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/similar/products/{product_table_id}", response_model=List[ProductPreviewDTO])
+async def get_similar_products_handler(product_table_id: int):
+    try:
+        products = await get_similar_products(product_table_id)
+        return products
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/filter/products", response_model=List[Product])
