@@ -1,3 +1,4 @@
+from typing import List
 from curl_cffi import requests
 import json
 import re
@@ -72,7 +73,7 @@ class OkidokiScraper:
 
         return ScrapedOkidokiProduct(product.id, product_name, product_price, product_description, product_images, product_category, "NA", seller_url, product.href, location, time)
 
-    def scrape_by_keyword(self, keyword: str):
+    def scrape_by_keyword(self, keyword: str) -> List[PreScrapedOkidokiProduct]:
         if self.config.max_pages == -1:
             self.config.max_pages = 1000000 # Set to a very high number to scrape all pages
         for i in range(1, self.config.max_pages + 1):

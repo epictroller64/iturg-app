@@ -15,7 +15,6 @@ async def start():
     await setup_database()
     await scraper.scrape_apple_products()
 
-
 asyncio.run(start())
 #classifier = Classifier()
 #asyncio.run(classifier.test())
