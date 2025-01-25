@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*.okidoki.st',
       },
+      {
+        protocol: 'https',
+        hostname: '*.soov.ee',
+      }
     ],
   },
 };

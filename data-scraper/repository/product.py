@@ -73,7 +73,7 @@ async def get_all_products_preview(search: Optional[str] = None, page: Optional[
 
 async def get_all_products() -> List[Product]:
     """Get all products from the database"""
-    rows = await select('SELECT * FROM products')
+    rows = await select('SELECT * FROM products LEFT JOIN level2_groups l2g ON products.id = l2g.product_table_id')
     products = []
     for row in rows:
         row_dict = dict(row)
@@ -93,7 +93,17 @@ async def get_all_products() -> List[Product]:
             created_at=datetime.fromisoformat(row_dict['created_at']),
             updated_at=datetime.fromisoformat(row_dict['updated_at']),
             images=row_dict['images'],
-            price_history=[]
+            price_history=[],
+            device=row_dict.get('device', ''),
+            chip=row_dict.get('chip', ''),
+            ram=row_dict.get('ram', ''),
+            screen_size=row_dict.get('screen_size', ''),
+            generation=row_dict.get('generation', ''),
+            storage=row_dict.get('storage', ''),
+            color=row_dict.get('color', ''),
+            status=row_dict.get('status', ''),
+            year=row_dict.get('year', ''),
+            watch_mm=row_dict.get('watch_mm', '')
         )
         # fill price history
         price_history_rows = await select('SELECT * FROM price_history WHERE product_table_id = ?', (row_dict['id'],))
@@ -108,7 +118,7 @@ async def get_product_by_product_id_and_platform(product_id: str, platform: str,
         if product:
             return product
     try:
-        rows = await select('SELECT * FROM products WHERE product_id = ? AND platform = ?', (product_id, platform))
+        rows = await select('SELECT * FROM products LEFT JOIN level2_groups l2g ON products.id = l2g.product_table_id WHERE product_id = ? AND platform = ?', (product_id, platform))
         if rows:
             result = rows[0]
             product = Product(
@@ -125,7 +135,17 @@ async def get_product_by_product_id_and_platform(product_id: str, platform: str,
                 created_at=datetime.fromisoformat(result[10]),
                 updated_at=datetime.fromisoformat(result[11]),
                 images=json.loads(result[12]),
-                price_history=[]
+                price_history=[],
+                device=result.get('device', ''),
+                chip=result.get('chip', ''),
+                ram=result.get('ram', ''),
+                screen_size=result.get('screen_size', ''),
+                generation=result.get('generation', ''),
+                storage=result.get('storage', ''),
+                color=result.get('color', ''),
+                status=result.get('status', ''),
+                year=result.get('year', ''),
+                watch_mm=result.get('watch_mm', '')
             )
             cache_store.set_product_by_product_id_and_platform(product_id, platform, product)
             return product
@@ -142,7 +162,7 @@ async def get_product(product_table_id: int, prefer_cache: bool = True) -> Optio
             return product
             
     try:
-        rows = await select('SELECT * FROM products  WHERE id = ?', (product_table_id,))
+        rows = await select('SELECT * FROM products LEFT JOIN level2_groups l2g ON products.id = l2g.product_table_id WHERE id = ? ', (product_table_id,))
         if rows and len(rows) > 0:
             result = rows[0]
             # Convert tuple to Product object
@@ -160,7 +180,17 @@ async def get_product(product_table_id: int, prefer_cache: bool = True) -> Optio
                 created_at=datetime.fromisoformat(result[10]),
                 updated_at=datetime.fromisoformat(result[11]),
                 images=json.loads(result[12]),
-                price_history=[]
+                price_history=[],
+                device=result.get('device', ''),
+                chip=result.get('chip', ''),
+                ram=result.get('ram', ''),
+                screen_size=result.get('screen_size', ''),
+                generation=result.get('generation', ''),
+                storage=result.get('storage', ''),
+                color=result.get('color', ''),
+                status=result.get('status', ''),
+                year=result.get('year', ''),
+                watch_mm=result.get('watch_mm', '')
             )
 
             # Get price history
@@ -241,7 +271,17 @@ async def get_products_by_level2_group(field: str, value: str) -> List[Product]:
             created_at=datetime.fromisoformat(row_dict['created_at']),
             updated_at=datetime.fromisoformat(row_dict['updated_at']),
             images=row_dict['images'],
-            price_history=[]
+            price_history=[],
+            device=row_dict.get('device', ''),
+            chip=row_dict.get('chip', ''),
+            ram=row_dict.get('ram', ''),
+            screen_size=row_dict.get('screen_size', ''),
+            generation=row_dict.get('generation', ''),
+            storage=row_dict.get('storage', ''),
+            color=row_dict.get('color', ''),
+            status=row_dict.get('status', ''),
+            year=row_dict.get('year', ''),
+            watch_mm=row_dict.get('watch_mm', '')
         ))
     return products
 

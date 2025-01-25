@@ -19,7 +19,7 @@ export function ProductCard({ product }: { product: ProductPreviewDTO }) {
         </div>
         <div className="flex flex-col justify-between p-2 h-[40%]">
             <div className="flex flex-col justify-between h-[80%]">
-                <Link href={`/product/${product.product_table_id}`} className="!text-xl hover:cursor-pointer">{product.name}</Link>
+                <Link href={`/product/${product.id}`} className="!text-xl hover:cursor-pointer">{product.name}</Link>
                 <div className="h-[1px] bg-gray-200 w-full"></div>
             </div>
             <div className="flex flex-col gap-2 h-[20%]">
@@ -100,6 +100,8 @@ function Platform({ platform }: { platform: string }) {
     switch (platform) {
         case "okidoki":
             return <span className="text-green-500 font-bold">Okidoki.ee</span>
+        case "soov":
+            return <span className="text-blue-500 font-bold">Soov.ee</span>
         default:
             return <span className="text-gray-500 font-bold">{platform}</span>
     }
@@ -159,7 +161,7 @@ export function ProductCard2({ product }: { product: ProductPreviewDTO }) {
                             whileTap={{ scale: 0.95 }}
                         >
                             <Link
-                                href={`/product/${product.product_table_id}`}
+                                href={`/product/${product.id}`}
                                 className="p-btn p-prim-col"
                             >
                                 Vaata üksikasju →

@@ -2,7 +2,7 @@ import ProductPriceHistoryGraph from "@/app/components/product/ProductGraph";
 import { LocalApi } from "@/app/lib/LocalApi"
 import ProductGallery from "@/app/components/product/ProductGallery";
 import { Product } from "@/app/lib/types/Product";
-import { HiLocationMarker, HiOfficeBuilding, HiClock, HiRefresh } from "react-icons/hi";
+import { HiLocationMarker, HiOfficeBuilding, HiClock, HiRefresh, HiArrowDown, HiArrowUp, HiMinus } from "react-icons/hi";
 import SimilarProducts from "@/app/components/SimilarProducts";
 import NotFoundError from "@/app/components/NotFoundError";
 import { ProductPreviewDTO } from "@/app/lib/types/ProductPreviewDTO";
@@ -40,6 +40,68 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
                         <div className="p-card">
                             <div className="p-card-content">
+                                <h2 className="text-xl font-semibold mb-4">Seadme spetsifikatsioonid</h2>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {productDetails.device && (
+                                        <div className="flex items-center gap-2">
+                                            <HiOfficeBuilding className="text-gray-600" />
+                                            <span className="text-gray-700">{productDetails.device}</span>
+                                        </div>
+                                    )}
+                                    {productDetails.chip && (
+                                        <div className="flex items-center gap-2">
+                                            <HiMinus className="text-gray-600" />
+                                            <span className="text-gray-700">{productDetails.chip}</span>
+                                        </div>
+                                    )}
+                                    {productDetails.ram && (
+                                        <div className="flex items-center gap-2">
+                                            <HiMinus className="text-gray-600" />
+                                            <span className="text-gray-700">{productDetails.ram}</span>
+                                        </div>
+                                    )}
+                                    {productDetails.storage && (
+                                        <div className="flex items-center gap-2">
+                                            <HiMinus className="text-gray-600" />
+                                            <span className="text-gray-700">{productDetails.storage}</span>
+                                        </div>
+                                    )}
+                                    {productDetails.screen_size && (
+                                        <div className="flex items-center gap-2">
+                                            <HiMinus className="text-gray-600" />
+                                            <span className="text-gray-700">{productDetails.screen_size}</span>
+                                        </div>
+                                    )}
+                                    {productDetails.color && (
+                                        <div className="flex items-center gap-2">
+                                            <HiMinus className="text-gray-600" />
+                                            <span className="text-gray-700">{productDetails.color}</span>
+                                        </div>
+                                    )}
+                                    {productDetails.status && (
+                                        <div className="flex items-center gap-2">
+                                            <HiMinus className="text-gray-600" />
+                                            <span className="text-gray-700">{productDetails.status}</span>
+                                        </div>
+                                    )}
+                                    {productDetails.year && (
+                                        <div className="flex items-center gap-2">
+                                            <HiClock className="text-gray-600" />
+                                            <span className="text-gray-700">{productDetails.year}</span>
+                                        </div>
+                                    )}
+                                    {productDetails.watch_mm && (
+                                        <div className="flex items-center gap-2">
+                                            <HiClock className="text-gray-600" />
+                                            <span className="text-gray-700">{productDetails.watch_mm}mm</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-card">
+                            <div className="p-card-content">
                                 <h2 className="text-xl font-semibold flex items-center gap-2">
                                     <HiRefresh className="text-gray-600" />
                                     Platform
@@ -65,7 +127,6 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                             </div>
                         </div>
 
-
                         <ProductDescription description={productDetails.description} />
                         <DateCard product={productDetails} />
 
@@ -79,28 +140,47 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 }
 
 function PriceCard({ productDetails }: { productDetails: Product }) {
+    const currentPrice = productDetails.price_history[productDetails.price_history.length - 1]?.price;
+    const previousPrice = productDetails.price_history[productDetails.price_history.length - 2]?.price;
+    const priceDifference = currentPrice - previousPrice;
+    const percentageChange = previousPrice ? ((priceDifference / previousPrice) * 100).toFixed(1) : 0;
+
+    const status = {
+        isIncrease: priceDifference > 0,
+        isDecrease: priceDifference < 0,
+        isSame: priceDifference === 0
+    };
+
     return <div className="p-card">
         <div className="p-card-content">
             <h2 className="text-xl font-semibold mb-2">Viimane hind</h2>
             <div className="flex items-center gap-2">
-                <p className="text-3xl font-bold text-green-600">
-                    €{productDetails.price_history[productDetails.price_history.length - 1]?.price || 'N/A'}
+                <p className={`text-3xl font-bold ${status.isIncrease ? 'text-red-600' :
+                    status.isDecrease ? 'text-green-600' : 'text-blue-600'
+                    }`}>
+                    €{currentPrice || 'N/A'}
                 </p>
                 {productDetails.price_history.length > 1 && (
-                    <span className={`text-sm px-2 py-1 rounded ${productDetails.price_history[productDetails.price_history.length - 1].price <
-                        productDetails.price_history[productDetails.price_history.length - 2].price
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
+                    <span className={`flex items-center gap-1 text-sm px-2 py-1 rounded ${status.isDecrease ? 'bg-green-100 text-green-800' :
+                        status.isIncrease ? 'bg-red-100 text-red-800' :
+                            'bg-blue-100 text-blue-800'
                         }`}>
-                        {((productDetails.price_history[productDetails.price_history.length - 1].price -
-                            productDetails.price_history[productDetails.price_history.length - 2].price) /
-                            productDetails.price_history[productDetails.price_history.length - 2].price * 100).toFixed(1)}%
+                        {status.isDecrease && (
+                            <HiArrowDown className="h-4 w-4" />
+                        )}
+                        {status.isIncrease && (
+                            <HiArrowUp className="h-4 w-4" />
+                        )}
+                        {status.isSame && (
+                            <HiMinus className="h-4 w-4" />
+                        )}
+                        {percentageChange}%
                     </span>
                 )}
             </div>
             {productDetails.price_history.length > 1 && (
                 <p className="text-sm text-gray-500 mt-2">
-                    Previous: €{productDetails.price_history[productDetails.price_history.length - 2].price}
+                    Varasem hind: €{productDetails.price_history[productDetails.price_history.length - 2].price}
                 </p>
             )}
         </div>

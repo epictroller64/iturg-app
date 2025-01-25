@@ -14,4 +14,14 @@ export type Product = {
     updated_at: Date;
     images: string[]; // JSON array of image urls
     price_history: PriceHistory[];
+    device: string | null;
+    chip: string | null;
+    ram: string | null;
+    screen_size: string | null;
+    generation: string | null;
+    storage: string | null;
+    color: string | null;
+    status: string | null;
+    year: string | null;
+    watch_mm: string | null;
 }
