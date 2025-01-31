@@ -69,6 +69,23 @@ async def setup_database():
     cursor = await conn.cursor()
     
     await cursor.execute('''
+        CREATE TABLE IF NOT EXISTS products_archive (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_id TEXT NOT NULL,
+            platform TEXT NOT NULL,
+            name TEXT NOT NULL,
+            description TEXT,
+            category TEXT,
+            brand TEXT,
+            seller_url TEXT,
+            product_url TEXT,
+            location TEXT,
+            created_at TIMESTAMP,
+            updated_at TIMESTAMP,
+            images TEXT
+        )
+    ''')
+    await cursor.execute('''
         CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             product_id TEXT NOT NULL,

@@ -28,11 +28,11 @@ export default function RootLayout({
         className={`${inter.className} antialiased p-layout p-silver-100`}
       >
         <Header />
-        <div className="pt-16">
+        <main className="pt-16 min-h-screen p-4">
           <QueryProvider>
             {children}
           </QueryProvider>
-        </div>
+        </main>
         <Footer />
       </body>
     </html>

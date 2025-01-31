@@ -5,15 +5,24 @@ import { ProductPreviewDTO } from "./types/ProductPreviewDTO";
 
 const baseUrl = "http://localhost:8000/api"
 
+interface FilterOptions {
+    minPrice?: number;
+    maxPrice?: number;
+    device?: string;
+}
+
 export const LocalApi = {
-    getProducts: async (search: string, page: number, pageSize: number, sortBy: string, sortOrder: string) => {
-        return await get<ProductPreviewDTO[]>(`products?search=${search}&page=${page}&page_size=${pageSize}&sort_by=${sortBy}&sort_order=${sortOrder}`);
+    getProducts: async (search: string, page: number, pageSize: number, sortBy: string, sortDirection: string, filters?: FilterOptions) => {
+        return await get<ProductPreviewDTO[]>(`products/search?search=${search}&page=${page}&page_size=${pageSize}&sort_by=${sortBy}&sort_direction=${sortDirection}&filters=${JSON.stringify(filters)}`);
     },
     getProductDetails: async (id: string) => {
-        return await get<Product>(`products/${id}`);
+        return await get<Product>(`products/id/${id}`);
     },
     getSimilarProducts: async (id: string) => {
         return await get<ProductPreviewDTO[]>(`similar/products/${id}`);
+    },
+    getProductsByIds: async (ids: string[]) => {
+        return await get<ProductPreviewDTO[]>(`products/ids?ids=${ids.join(',')}`);
     }
 }
 

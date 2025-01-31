@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
-from repository.product import get_all_products_preview, get_product, get_products_by_level2_group, get_similar_products
+from repository.product import get_all_products_preview, get_product, get_products_by_ids, get_products_by_level2_group, get_similar_products
 from models.Product import Product
 from models.ProductPreviewDTO import ProductPreviewDTO
 from fastapi import Query
@@ -31,23 +31,23 @@ app.add_middleware(
 )
 
 
-@app.get("/api/products", response_model=List[ProductPreviewDTO])
+@app.get("/api/products/search", response_model=List[ProductPreviewDTO])
 async def get_products_handler(
     search: Optional[str] = Query(None),
     page: Optional[int] = Query(1),
     page_size: Optional[int] = Query(10),
     sort_by: Optional[str] = Query("updated_at"),
     sort_order: Optional[str] = Query("desc"),
+    filters: Optional[str] = Query(None, description="JSON string of filters, e.g. '{\"device\":\"iphone\",\"color\":\"red\"}'")
 ):
     try:
-        products = await get_all_products_preview(search, page, page_size, sort_by, sort_order)
+        products = await get_all_products_preview(search, page, page_size, sort_by, sort_order, filters)
         return products
     except Exception as e:
-        print('here')
-        print(e)
+        print('Error in get_products_handler:', e)
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/products/{product_table_id}", response_model=Product)
+@app.get("/api/products/id/{product_table_id}", response_model=Product)
 async def get_product_handler(product_table_id: int):
     try:
         product = await get_product(product_table_id)
@@ -56,6 +56,16 @@ async def get_product_handler(product_table_id: int):
             
         return Product.model_validate(product)
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
+@app.get("/api/products/ids", response_model=List[ProductPreviewDTO])
+async def get_products_by_ids_handler(ids: List[int] = Query(...)):
+    try:
+        products = await get_products_by_ids([str(id) for id in ids])
+        return products
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/similar/products/{product_table_id}", response_model=List[ProductPreviewDTO])

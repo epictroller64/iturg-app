@@ -3,40 +3,64 @@
 import { useQuery } from "@tanstack/react-query";
 import { searchStore } from "../lib/stores/search-store";
 import { LocalApi } from "../lib/LocalApi";
-import { ProductPreviewDTO } from "../lib/types/ProductPreviewDTO";
 import { ProductCard } from "./ProductCard";
+import SortingControls from "./SortingControls";
+import FilterControls from "./FilterControls";
+import { ProductPreviewDTO } from "../lib/types/ProductPreviewDTO";
+import ProductSkeleton from "./product/ProductSkeleton";
+
+
 
 export default function SearchResults() {
-    const { search, page, pageSize, sortBy, sortOrder } = searchStore();
-    const { data: products, isLoading, error } = useQuery<ProductPreviewDTO[]>({
-        queryKey: ["products", search, page, pageSize, sortBy, sortOrder],
-        queryFn: () => LocalApi.getProducts(search, page, pageSize, sortBy, sortOrder)
+    const { search, sortBy, sortDirection, filters } = searchStore();
+
+    const { data: products = [], isLoading } = useQuery({
+        queryKey: ['products', search, sortBy, sortDirection, filters],
+        queryFn: () => LocalApi.getProducts(
+            search,
+            1,
+            10,
+            sortBy,
+            sortDirection,
+            filters
+        )
     });
-
-    if (isLoading) {
-        return <div className="w-full h-96 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
-        </div>
-    }
-
-    if (error) {
-        return <div className="w-full h-96 flex items-center justify-center text-red-500">
-            Error loading products
-        </div>
-    }
-
-    if (!products?.length) {
-        return <div className="w-full h-96 flex items-center justify-center text-gray-500">
-            No products found
-        </div>
-    }
-    console.log(products);
+    console.log(products)
+    console.log(isLoading)
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-            {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-            ))}
+        <div className="flex gap-6 w-full">
+            <div className="flex-shrink-0">
+                <FilterControls />
+            </div>
+
+            <div className="w-full">
+                <div className="flex justify-between items-center mb-6">
+                    <SortingControls />
+                </div>
+                <Products isLoading={isLoading} products={products} />
+            </div>
         </div>
     );
 }
 
+
+function Products({ isLoading, products }: { isLoading: boolean, products: ProductPreviewDTO[] }) {
+    if (isLoading) {
+        return <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+            {Array.from({ length: 6 }).map((_, index) => (
+                <ProductSkeleton key={index} />
+            ))}
+        </div>
+    }
+    if (products.length === 0) {
+        return <div className="text-center text-gray-500 w-full">
+            <h2 className="text-2xl font-semibold text-gray-900">Otsingu tulemused</h2>
+            <p className="text-lg">Ei leitud ühtegi toodet</p>
+        </div>
+    }
+    return <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+        {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+        ))}
+    </div>
+}

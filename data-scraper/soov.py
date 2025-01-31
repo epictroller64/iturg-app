@@ -24,20 +24,38 @@ class SoovScraper:
         self.product_queue = []
         self.config = config
         self.logger = LoggerFactory.get_logger("soov")
+    
+
+    def update_product_details(self, product: SoovProduct):
+        # fetch product page and detect whether listing is still active
+        url = product.product_url
+        response = self.session.get(url, headers=self.headers)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        headings = soup.find('h1')
+        for heading in headings:
+            if "Kuulutust ei leitud..." in heading.text.strip() or "Kuulutus eemaldatud" in heading.text.strip():
+                product.active = False
+        return product
 
 
     def scrape_product_details(self, product: PreScrapedSoovProduct) -> SoovProduct:
+
         url = product.href
         response = self.session.get(url, headers=self.headers)
         soup = BeautifulSoup(response.text, 'html.parser')
+        active = True
+        # check if product is still active
+        headings = soup.find('h1')
+        for heading in headings:
+            if "Kuulutust ei leitud..." in heading.text.strip() or "Kuulutus eemaldatud" in heading.text.strip():
+                active = False
+                break
 
         description = str(soup.find('p', attrs={'itemprop': 'description'}))
 
         key_feature_container = soup.find('div', class_='key-features row')
         key_features = key_feature_container.find_all('div', class_='media')
         if key_features and len(key_features) > 0:
-            price_element = key_features[0].find('span', class_='media-heading')
-            price = price_element.get_text(strip=True).split('€')[0].strip() + '€' if price_element else None
 
             city_element = key_features[1].find('span', class_='media-heading')
             city = city_element.get_text(strip=True) if city_element else None
@@ -84,7 +102,8 @@ class SoovScraper:
             seller_url=seller_url,
             product_url=product.href,
             location=city if city else '',
-            time=time
+            time=time,
+            active=active
         )
 
 

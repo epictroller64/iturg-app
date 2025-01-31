@@ -8,39 +8,54 @@ from factory import LoggerFactory
 from repository.product import get_product_by_product_id_and_platform
 from typing import List, Set
 from soov import SoovScraper
+from hinnavaatlus import HinnavaatlusScraper
+from updater import Updater
 import asyncio
+from backup_manager import BackupManager
 
 class Scraper:
 
     okidoki_scraper: OkidokiScraper
     soov_scraper: SoovScraper
+    hinnavaatlus_scraper: HinnavaatlusScraper
     product_pipeline: ProductPipeline
     pricehistory_pipeline: PriceHistoryPipeline
     config: ScraperConfig
     next_scrape_time: datetime
-
+    backup_manager: BackupManager
 
     def __init__(self, config: ScraperConfig):
         self.okidoki_scraper = OkidokiScraper(config)
         self.soov_scraper = SoovScraper(config)
+        self.hinnavaatlus_scraper = HinnavaatlusScraper(config)
         self.product_pipeline = ProductPipeline(config)
         self.pricehistory_pipeline = PriceHistoryPipeline()
         self.config = config
         self.next_scrape_time = datetime.now()
+        self.backup_manager = BackupManager()
         self.logger = LoggerFactory.get_logger("Scraper")
+    
 
+    async def update_product_details(self):
+        pass
 
     async def scrape_apple_products(self):
         """Scrape apple products from across different platforms (marketplaces)"""
         while True:
             if self.next_scrape_time < datetime.now():
                 self.logger.info(f"Starting apple scraper at {datetime.now()}")
+                self.backup_manager.create_backup()
                 await self.scrape_soov_products(["apple", "iphone", "imac", "macbook", "ipad"])
                 await self.scrape_okidoki_products(["apple", "iphone", "imac", "macbook", "ipad"])
+                await self.scrape_hinnavaatlus_products()
                 self._update_next_scrape_time()
             else:
                 self.logger.info(f"Waiting for next scrape at {self.next_scrape_time}")
                 await asyncio.sleep(1)
+
+    async def scrape_hinnavaatlus_products(self):
+        products = self.hinnavaatlus_scraper.scrape_products()
+        await self._process_products(products, "hinnavaatlus", self.hinnavaatlus_scraper.scrape_product_details)
 
     async def scrape_soov_products(self, keywords: List[str]):
         products = []

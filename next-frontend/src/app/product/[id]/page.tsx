@@ -6,6 +6,7 @@ import { HiLocationMarker, HiOfficeBuilding, HiClock, HiRefresh, HiArrowDown, Hi
 import SimilarProducts from "@/app/components/SimilarProducts";
 import NotFoundError from "@/app/components/NotFoundError";
 import { ProductPreviewDTO } from "@/app/lib/types/ProductPreviewDTO";
+import ProductLike from "@/app/components/product/ProductLike";
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -33,72 +34,15 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                     <ProductGallery images={productDetails.images} name={productDetails.name} />
                 </div>
                 <div>
-                    <h1 className="p-large-title mb-4">{productDetails.name}</h1>
+                    <div className="flex flex-row justify-between">
+                        <h1 className="p-large-title mb-4">{productDetails.name}</h1>
+                        <ProductLike id={productDetails.id} />
+                    </div>
                     <div className="space-y-4">
                         <PriceCard productDetails={productDetails} />
                         <VisitProductButton productUrl={productDetails.product_url} platform={productDetails.platform} />
 
-                        <div className="p-card">
-                            <div className="p-card-content">
-                                <h2 className="text-xl font-semibold mb-4">Seadme spetsifikatsioonid</h2>
-                                <div className="grid grid-cols-2 gap-4">
-                                    {productDetails.device && (
-                                        <div className="flex items-center gap-2">
-                                            <HiOfficeBuilding className="text-gray-600" />
-                                            <span className="text-gray-700">{productDetails.device}</span>
-                                        </div>
-                                    )}
-                                    {productDetails.chip && (
-                                        <div className="flex items-center gap-2">
-                                            <HiMinus className="text-gray-600" />
-                                            <span className="text-gray-700">{productDetails.chip}</span>
-                                        </div>
-                                    )}
-                                    {productDetails.ram && (
-                                        <div className="flex items-center gap-2">
-                                            <HiMinus className="text-gray-600" />
-                                            <span className="text-gray-700">{productDetails.ram}</span>
-                                        </div>
-                                    )}
-                                    {productDetails.storage && (
-                                        <div className="flex items-center gap-2">
-                                            <HiMinus className="text-gray-600" />
-                                            <span className="text-gray-700">{productDetails.storage}</span>
-                                        </div>
-                                    )}
-                                    {productDetails.screen_size && (
-                                        <div className="flex items-center gap-2">
-                                            <HiMinus className="text-gray-600" />
-                                            <span className="text-gray-700">{productDetails.screen_size}</span>
-                                        </div>
-                                    )}
-                                    {productDetails.color && (
-                                        <div className="flex items-center gap-2">
-                                            <HiMinus className="text-gray-600" />
-                                            <span className="text-gray-700">{productDetails.color}</span>
-                                        </div>
-                                    )}
-                                    {productDetails.status && (
-                                        <div className="flex items-center gap-2">
-                                            <HiMinus className="text-gray-600" />
-                                            <span className="text-gray-700">{productDetails.status}</span>
-                                        </div>
-                                    )}
-                                    {productDetails.year && (
-                                        <div className="flex items-center gap-2">
-                                            <HiClock className="text-gray-600" />
-                                            <span className="text-gray-700">{productDetails.year}</span>
-                                        </div>
-                                    )}
-                                    {productDetails.watch_mm && (
-                                        <div className="flex items-center gap-2">
-                                            <HiClock className="text-gray-600" />
-                                            <span className="text-gray-700">{productDetails.watch_mm}mm</span>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
+                        <Specifications productDetails={productDetails} />
 
                         <div className="p-card">
                             <div className="p-card-content">
@@ -137,6 +81,71 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <SimilarProducts products={similarProducts} />
         </div>
     );
+}
+
+
+function Specifications({ productDetails }: { productDetails: Product }) {
+    return <div className="p-card">
+        <div className="p-card-content">
+            <h2 className="text-xl font-semibold mb-4">Seadme spetsifikatsioonid</h2>
+            <div className="grid grid-cols-2 gap-4">
+                {productDetails.device && (
+                    <div className="flex items-center gap-2">
+                        <HiOfficeBuilding className="text-gray-600" />
+                        <span className="text-gray-700">{productDetails.device}</span>
+                    </div>
+                )}
+                {productDetails.chip && (
+                    <div className="flex items-center gap-2">
+                        <HiMinus className="text-gray-600" />
+                        <span className="text-gray-700">{productDetails.chip}</span>
+                    </div>
+                )}
+                {productDetails.ram && (
+                    <div className="flex items-center gap-2">
+                        <HiMinus className="text-gray-600" />
+                        <span className="text-gray-700">{productDetails.ram}</span>
+                    </div>
+                )}
+                {productDetails.storage && (
+                    <div className="flex items-center gap-2">
+                        <HiMinus className="text-gray-600" />
+                        <span className="text-gray-700">{productDetails.storage}</span>
+                    </div>
+                )}
+                {productDetails.screen_size && (
+                    <div className="flex items-center gap-2">
+                        <HiMinus className="text-gray-600" />
+                        <span className="text-gray-700">{productDetails.screen_size}</span>
+                    </div>
+                )}
+                {productDetails.color && (
+                    <div className="flex items-center gap-2">
+                        <HiMinus className="text-gray-600" />
+                        <span className="text-gray-700">{productDetails.color}</span>
+                    </div>
+                )}
+                {productDetails.status && (
+                    <div className="flex items-center gap-2">
+                        <HiMinus className="text-gray-600" />
+                        <span className="text-gray-700">{productDetails.status}</span>
+                    </div>
+                )}
+                {productDetails.year && (
+                    <div className="flex items-center gap-2">
+                        <HiClock className="text-gray-600" />
+                        <span className="text-gray-700">{productDetails.year}</span>
+                    </div>
+                )}
+                {productDetails.watch_mm && (
+                    <div className="flex items-center gap-2">
+                        <HiClock className="text-gray-600" />
+                        <span className="text-gray-700">{productDetails.watch_mm}mm</span>
+                    </div>
+                )}
+            </div>
+        </div>
+    </div>
 }
 
 function PriceCard({ productDetails }: { productDetails: Product }) {

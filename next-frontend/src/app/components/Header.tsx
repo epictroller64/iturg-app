@@ -14,6 +14,11 @@ export default function Header() {
                                 Avaleht
                             </Link>
                         </li>
+                        <li>
+                            <Link href="/lemmikud" className="p-btn p-btn-text">
+                                Lemmikud
+                            </Link>
+                        </li>
                     </ul>
                 </nav>
             </div>

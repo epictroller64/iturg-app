@@ -8,14 +8,16 @@ import { FiCpu } from "react-icons/fi";
 import { FiServer } from "react-icons/fi";
 import { FiTablet } from "react-icons/fi";
 import { FiWatch } from "react-icons/fi";
+import ProductLike from "./product/ProductLike";
 
 
 
 export function ProductCard({ product }: { product: ProductPreviewDTO }) {
-    return <div className="p-card h-[75vh] flex flex-col">
+    return <div className="p-card h-[75vh] flex flex-col w-[20vw]">
         <div className="relative w-full h-[60%]">
-            <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
+            {product.imageUrl.length > 0 && <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />}
             <div className="absolute top-5 left-5  text-2xl p-blur-1 font-bold text-black px-2 rounded-full">{product.price} €</div>
+            <div className="absolute top-2 right-5"><ProductLike id={product.id} /></div>
         </div>
         <div className="flex flex-col justify-between p-2 h-[40%]">
             <div className="flex flex-col justify-between h-[80%]">

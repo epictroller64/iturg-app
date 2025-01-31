@@ -1,28 +1,28 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
-type SearchStore = {
+type SortOption = 'updated_at' | 'price' | 'title';
+type SortDirection = 'asc' | 'desc';
+
+interface SearchState {
     search: string;
-    page: number;
-    pageSize: number;
-    sortBy: string;
-    sortOrder: string;
+    sortBy: SortOption;
+    sortDirection: SortDirection;
+    filters: {
+        minPrice?: number;
+        maxPrice?: number;
+        device?: string;
+    };
     setSearch: (search: string) => void;
-    setPage: (page: number) => void;
-    setPageSize: (pageSize: number) => void;
-    setSortBy: (sortBy: string) => void;
-    setSortOrder: (sortOrder: string) => void;
+    setSorting: (sortBy: SortOption, direction: SortDirection) => void;
+    setFilters: (filters: SearchState['filters']) => void;
 }
 
-
-export const searchStore = create<SearchStore>((set) => ({
-    search: "",
-    page: 1,
-    pageSize: 10,
-    sortBy: "updated_at",
-    sortOrder: "desc",
-    setSearch: (search: string) => set({ search }),
-    setPage: (page: number) => set({ page }),
-    setPageSize: (pageSize: number) => set({ pageSize }),
-    setSortBy: (sortBy: string) => set({ sortBy }),
-    setSortOrder: (sortOrder: string) => set({ sortOrder }),
-}))
+export const searchStore = create<SearchState>((set) => ({
+    search: '',
+    sortBy: 'updated_at',
+    sortDirection: 'desc',
+    filters: {},
+    setSearch: (search) => set({ search }),
+    setSorting: (sortBy, sortDirection) => set({ sortBy, sortDirection }),
+    setFilters: (filters) => set({ filters }),
+}));

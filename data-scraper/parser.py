@@ -5,7 +5,7 @@ from repository.product import get_all_products
 from models.Product import Product
 import os
 from group_pipeline import GroupPipeline
-from models.OpenAIResponse import OpenAIResponse
+from models.OpenAIResponse import OpenAIResponse, OpenAIHVPostResponse
 from factory import LoggerFactory
 
 class Parser:
@@ -43,6 +43,27 @@ class Parser:
         except Exception as e:
             self.logger.error(f"Error retrieving OpenAI response: {e}")
             return 
+    
+
+    async def ask_openai_hv_post(self, post: str):
+        # ask openai to parse products from single post and their prices, as there can be multiple products in one post
+        try:
+            response = await self.openai.beta.chat.completions.parse(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": "You extract products and their prices from forum posts I feed you one by one. Use OK price wherever available."},
+                    {"role": "user", "content": post}
+                ],
+                response_format=OpenAIHVPostResponse
+            )
+            return response.choices[0].message.parsed
+        except Exception as e:
+            self.logger.error(f"Error retrieving OpenAI response: {e}")
+            return
+    
+    async def parse_hv_post(self, post: str):
+        openai_response = await self.ask_openai_hv_post(post)
+        return openai_response
     
     async def parse_product(self, product: Product):
         """Parse product title using OpenAI to extract key features and group products"""
