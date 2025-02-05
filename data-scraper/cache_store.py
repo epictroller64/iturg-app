@@ -1,6 +1,5 @@
-from models.Product import Product
 from typing import Optional, List, Dict
-
+from models.database.Product import Product
 
 
 class CacheStore:

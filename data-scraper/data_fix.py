@@ -1,7 +1,7 @@
 from repository.product import get_all_products
 from product_pipeline import ProductPipeline
 from database import execute, select, execute_batch
-from models.ScraperConfig import ScraperConfig
+from models.scraping.ScraperConfig import ScraperConfig
 from classifier import Classifier
 from parser import Parser
 

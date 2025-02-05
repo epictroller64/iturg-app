@@ -1,11 +1,11 @@
 from datetime import datetime
 from cache_store import CacheStore
 from database import select, execute
-from models.Product import Product
 import json
 from typing import Optional, List
-from models.ProductPreviewDTO import ProductPreviewDTO
-from models.PriceHistory import PriceHistory
+from models.database.Product import Product
+from models.database.PriceHistory import PriceHistory
+from models.dto.ProductPreviewDTO import ProductPreviewDTO
 from repository.groups import get_level2_groups_by_product_table_id, get_level2_groups_by_device
 
 def create_product_from_row(row: dict) -> Product:

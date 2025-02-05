@@ -1,17 +1,16 @@
-from okidoki import OkidokiScraper, PreScrapedOkidokiProduct
-from soov import PreScrapedSoovProduct
 from product_pipeline import ProductPipeline
 from pricehistory_pipeline import PriceHistoryPipeline
-from models.ScraperConfig import ScraperConfig
 from datetime import datetime, timedelta
 from factory import LoggerFactory
 from repository.product import get_product_by_product_id_and_platform
 from typing import List, Set
-from soov import SoovScraper
-from hinnavaatlus import HinnavaatlusScraper
-from updater import Updater
 import asyncio
 from backup_manager import BackupManager
+from services.scraping.okidoki import OkidokiScraper
+from services.scraping.soov import SoovScraper
+from services.scraping.hinnavaatlus import HinnavaatlusScraper
+from models.scraping import ScraperConfig
+from inspect import iscoroutinefunction
 
 class Scraper:
 
@@ -45,8 +44,9 @@ class Scraper:
             if self.next_scrape_time < datetime.now():
                 self.logger.info(f"Starting apple scraper at {datetime.now()}")
                 self.backup_manager.create_backup()
-                await self.scrape_soov_products(["apple", "iphone", "imac", "macbook", "ipad"])
-                await self.scrape_okidoki_products(["apple", "iphone", "imac", "macbook", "ipad"])
+                
+                #await self.scrape_soov_products(["apple", "iphone", "imac", "macbook", "ipad"])
+                #await self.scrape_okidoki_products(["apple", "iphone", "imac", "macbook", "ipad"])
                 await self.scrape_hinnavaatlus_products()
                 self._update_next_scrape_time()
             else:
@@ -86,6 +86,7 @@ class Scraper:
                 self.logger.info(f"Product {product.id} has been recently scraped, skipping...")
                 continue
             
-            full_product = processor(product)
-            await getattr(self.product_pipeline, f'process_{platform}_product')(full_product)
+            full_products = await processor(product) if iscoroutinefunction(processor) else processor(product)
+            for full_product in full_products:
+                await getattr(self.product_pipeline, f'process_{platform}_product')(full_product)
 

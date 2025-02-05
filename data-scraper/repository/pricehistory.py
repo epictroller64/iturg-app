@@ -1,6 +1,5 @@
 from database import execute, select
-from models.PriceHistory import PriceHistory
-
+from models.database.PriceHistory import PriceHistory
 async def insert_price_history(price_history: PriceHistory):
     """Insert price history into the database"""
     try:

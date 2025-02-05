@@ -1,6 +1,6 @@
 from database import select
-from models.Level2Group import Level2Group
 from typing import List
+from models.database.Level2Group import Level2Group
 
 async def get_level1_groups():
     return await select("SELECT * FROM level1_groups")

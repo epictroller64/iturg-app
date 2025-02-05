@@ -1,6 +1,5 @@
 from scraper import Scraper
-from models.ScraperConfig import ScraperConfig
-from parser import Parser
+from models.scraping.ScraperConfig import ScraperConfig
 from dotenv import load_dotenv
 import asyncio
 from group_pipeline import Classifier
@@ -16,7 +15,7 @@ updater = Updater(ScraperConfig(max_pages=-1))
 async def start():
     await setup_database()
     await scraper.scrape_apple_products()
-    await updater.update_all_product_details()
+    #await updater.update_all_product_details()
 
 asyncio.run(start())
 #classifier = Classifier()

@@ -1,14 +1,12 @@
-from models.SoovProduct import SoovProduct
-from scraper import ScraperConfig
+from models.scraping.ScraperConfig import ScraperConfig
 from repository.product import get_all_products
-from typing import List
 from product_pipeline import ProductPipeline
-from soov import SoovScraper
-from okidoki import OkidokiScraper
 from factory import LoggerFactory
-from models.Product import Product
 from backup_manager import BackupManager
-
+from models.database.Product import Product
+from services.scraping.soov import SoovScraper
+from services.scraping.okidoki import OkidokiScraper
+from services.scraping.hinnavaatlus import HinnavaatlusScraper
 class Updater:
     config: ScraperConfig
     logger: LoggerFactory

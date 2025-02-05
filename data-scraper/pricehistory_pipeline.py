@@ -1,7 +1,7 @@
-from models.PriceHistory import PriceHistory
 from repository.pricehistory import insert_price_history
 from factory import LoggerFactory
 from datetime import datetime
+from models.database.PriceHistory import PriceHistory
 class PriceHistoryPipeline:
 
     def __init__(self):
