@@ -204,7 +204,7 @@ function DateCard({ product }: { product: Product }) {
             <div className="flex flex-col gap-2 text-gray-600">
                 <div className="flex items-center gap-2">
                     <HiClock className="h-5 w-5" />
-                    <span className="font-medium">Lisatud:</span>
+                    <span className="font-medium">Lisatud andmebaasi:</span>
                     <span>{new Date(product.created_at).toLocaleDateString('et-EE', {
                         year: 'numeric',
                         month: 'long',
@@ -228,7 +228,7 @@ function DateCard({ product }: { product: Product }) {
 function VisitProductButton({ productUrl, platform }: { productUrl: string, platform: string }) {
     return <div className="flex justify-center items-center flex-col">
         <a
-            href={productUrl}
+            href={platform === "hinnavaatlus" ? `https://foorum.hinnavaatlus.ee/${productUrl}` : productUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="p-btn p-prim-col p-btn-lg"

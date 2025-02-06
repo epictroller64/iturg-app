@@ -313,7 +313,9 @@ async def delete_product(product_table_id: int):
 
 async def insert_product_to_archive(product: Product):
     """Insert product to the archive table"""
-    await execute('INSERT INTO products_archive (product_id, platform, name, description, category, brand, seller_url, product_url, location, created_at, updated_at, images) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (product.product_id, product.platform, product.name, product.description, product.category, product.brand, product.seller_url, product.product_url, product.location, product.created_at, product.updated_at, product.images))
+    images_json = json.dumps(product.images)
+    category_json = json.dumps(product.category)
+    await execute('INSERT INTO products_archive (product_id, platform, name, description, category, brand, seller_url, product_url, location, created_at, updated_at, images) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (product.product_id, product.platform, product.name, product.description, category_json, product.brand, product.seller_url, product.product_url, product.location, product.created_at, product.updated_at, images_json))
 
 
 cache_store = CacheStore([])

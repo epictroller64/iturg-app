@@ -12,3 +12,4 @@ class ScrapedHVProduct(BaseModel):
     product_url: str
     location: str
     time: str
+    active: bool = True

@@ -15,7 +15,15 @@ import ProductLike from "./product/ProductLike";
 export function ProductCard({ product }: { product: ProductPreviewDTO }) {
     return <div className="p-card h-[75vh] flex flex-col w-[20vw]">
         <div className="relative w-full h-[60%]">
-            {product.imageUrl.length > 0 && <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />}
+            {product.imageUrl.length > 0 ? (
+                <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
+            ) : (
+                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                    <div className="text-gray-400 text-6xl">
+                        <FiSmartphone />
+                    </div>
+                </div>
+            )}
             <div className="absolute top-5 left-5  text-2xl p-blur-1 font-bold text-black px-2 rounded-full">{product.price} €</div>
             <div className="absolute top-2 right-5"><ProductLike id={product.id} /></div>
         </div>
@@ -104,8 +112,11 @@ function Platform({ platform }: { platform: string }) {
             return <span className="text-green-500 font-bold">Okidoki.ee</span>
         case "soov":
             return <span className="text-blue-500 font-bold">Soov.ee</span>
+        case "hinnavaatlus":
+            return <span className="text-red-500 font-bold">Hinnavaatlus.ee</span>
         default:
             return <span className="text-gray-500 font-bold">{platform}</span>
+
     }
 }
 

@@ -19,6 +19,12 @@ class OkidokiParser:
     def get_soup(self, html_content: str) -> BeautifulSoup:
         return BeautifulSoup(html_content, 'html.parser')
     
+    def is_active_listing(self, soup: BeautifulSoup) -> bool:
+        status_elem = soup.find("p", class_="item-status")
+        if not status_elem:
+            return False  # If we can't find the status element, assume listing is not active
+        return "Kuulutus ei ole aktiivne" not in status_elem.text.strip()
+    
     def get_product_price(self, soup: BeautifulSoup) -> float:
         price_elem = soup.find('p', class_='price')
         if not price_elem:

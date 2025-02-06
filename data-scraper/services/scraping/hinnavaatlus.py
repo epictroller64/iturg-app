@@ -27,8 +27,31 @@ class HinnavaatlusScraper():
     async def scrape_product_details(self, product: PreScrapedHVProduct) -> ScrapedHVProduct:
         # Get page content
         response = self.session.get(f"https://foorum.hinnavaatlus.ee/{product.link}", headers=self.headers)
+        if response.status_code != 200:
+            self.logger.error(f"Failed to scrape product details for {product.link} with status code {response.status_code}")
+            return None
+        
         soup = self.parser.get_soup(response.text)
+        is_active = self.parser.is_active_listing(soup)
+        if not is_active:
+            return [ScrapedHVProduct(
+                product_id=f"{product.id}-{product.title}",
+                name=product.title,
+                price=0,
+                description="",
+                images=[],
+                categories=[],
+                brand="",
+                seller_url=product.link,
+                product_url=product.link,
+                location=product.location,
+                time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                active=is_active
+            )]
         first_post = self.parser.get_first_post(soup)
+        if not first_post:
+            self.logger.error(f"Failed to scrape product details for {product.link} with status code {response.status_code}")
+            return []
 
         images = self.parser.get_images_from_post(first_post)
 
@@ -61,8 +84,10 @@ class HinnavaatlusScraper():
                 seller_url=base_product['seller_url'],
                 product_url=base_product['product_url'],
                 location=base_product['location'],
-                time=base_product['time']
+                time=base_product['time'],
+                active=is_active
             )]
+
 
         # Return all extracted products
         return [ScrapedHVProduct(
@@ -76,8 +101,10 @@ class HinnavaatlusScraper():
             seller_url=base_product['seller_url'],
             product_url=base_product['product_url'],
             location=base_product['location'],
-            time=base_product['time']
+            time=base_product['time'],
+            active=is_active
         ) for found_product in extracted_products]
+
 
     def scrape_products(self):
         page_num = 0

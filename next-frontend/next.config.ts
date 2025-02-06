@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: '*.soov.ee',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.upload.ee'
       }
     ],
   },

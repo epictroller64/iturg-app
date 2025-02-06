@@ -3,19 +3,21 @@ from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from repository.product import get_all_products_preview, get_product, get_products_by_ids, get_products_by_level2_group, get_similar_products
-from models.Product import Product
-from models.ProductPreviewDTO import ProductPreviewDTO
 from fastapi import Query
 from dotenv import load_dotenv
+from models.dto.ProductPreviewDTO import ProductPreviewDTO
+from models.database.Product import Product
 from database import setup_database
 from repository.product import init_cache
+
+
 
 load_dotenv(override=True)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await setup_database()
-    await init_cache()
+    #await init_cache()
     print('setup complete')
     yield
 

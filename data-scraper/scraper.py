@@ -45,8 +45,8 @@ class Scraper:
                 self.logger.info(f"Starting apple scraper at {datetime.now()}")
                 self.backup_manager.create_backup()
                 
-                #await self.scrape_soov_products(["apple", "iphone", "imac", "macbook", "ipad"])
-                #await self.scrape_okidoki_products(["apple", "iphone", "imac", "macbook", "ipad"])
+                await self.scrape_soov_products(["apple", "iphone", "imac", "macbook", "ipad"])
+                await self.scrape_okidoki_products(["apple", "iphone", "imac", "macbook", "ipad"])
                 await self.scrape_hinnavaatlus_products()
                 self._update_next_scrape_time()
             else:

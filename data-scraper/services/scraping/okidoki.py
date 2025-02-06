@@ -50,8 +50,12 @@ class OkidokiScraper:
     def scrape_product_details(self, product: PreScrapedOkidokiProduct) -> List[ScrapedOkidokiProduct]:
         url = f"https://www.okidoki.ee{product.href}"
         response = self._make_request(url, f"product {product.id}")
+        if response.status_code != 200:
+            self.logger.error(f"Failed to scrape product details for {product.id} with status code {response.status_code}")
+            return None
         
         soup = self.parser.get_soup(response.text)
+        is_active = self.parser.is_active_listing(soup)
         product_name = product.name
         product_price = self.parser.get_product_price(soup)
         product_description = self.parser.get_product_description(soup)
@@ -67,12 +71,12 @@ class OkidokiScraper:
                                      description=product_description,
                                      images=product_images,
                                      categories=product_category,
-
                                      brand="NA",
                                      seller_url=seller_url,
                                      product_url=product.href,
                                      location=location,
-                                     time=time)
+                                     time=time,
+                                     active=is_active)
                                      ]
 
 

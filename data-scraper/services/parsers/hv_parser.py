@@ -22,6 +22,12 @@ class HVParser():
     def parse_listing_link_from_post(self, post: Tag) -> str:
         return post.attrs['href'] if post.has_attr('href') else ""
         
+    def is_active_listing(self, soup: BeautifulSoup) -> bool:
+        gen_span = soup.find('span', class_='gen')
+        if not gen_span:
+            return False
+        return "teema puudub või on kustutatud" not in gen_span.text.strip()
+
 
     def parse_seller_url_from_post(self, soup: BeautifulSoup) -> str:
         seller_url = ""
@@ -40,7 +46,11 @@ class HVParser():
         return first_post
     
     def get_images_from_post(self, first_post: Tag ) -> List[str]:
-        images = [image['src'].replace('thumb', 'image') for image in first_post.find_all('img')]
+        images = [
+            image['src'].replace('thumb', 'image') 
+            for image in first_post.find_all('img')
+            if not image['src'].endswith('/images/exclamation.gif')
+        ]
         return images
 
     def get_product_id_from_url(self, url: str) -> str:

@@ -7,13 +7,16 @@ from models.database.Product import Product
 from services.scraping.soov import SoovScraper
 from services.scraping.okidoki import OkidokiScraper
 from services.scraping.hinnavaatlus import HinnavaatlusScraper
+
 class Updater:
     config: ScraperConfig
     logger: LoggerFactory
     product_pipeline: ProductPipeline
     soov_scraper: SoovScraper
     okidoki_scraper: OkidokiScraper
+    hinnavaatlus_scraper: HinnavaatlusScraper
     backup_manager: BackupManager
+
 
 
     def __init__(self, config: ScraperConfig):
@@ -22,13 +25,17 @@ class Updater:
         self.product_pipeline = ProductPipeline(config)
         self.soov_scraper = SoovScraper(config)
         self.okidoki_scraper = OkidokiScraper(config)
+        self.hinnavaatlus_scraper = HinnavaatlusScraper(config)
         self.backup_manager = BackupManager()
+
 
     async def update_product_details(self, product: Product):
         if product.platform == "soov":
-            updated_product = self.soov_scraper.update_product_details(product)
+            updated_product = self.soov_scraper.scrape_product_details(product)
         elif product.platform == "okidoki":
-            updated_product = self.okidoki_scraper.update_product_details(product)
+            updated_product = self.okidoki_scraper.scrape_product_details(product)
+        elif product.platform == "hinnavaatlus":
+            updated_product = self.hinnavaatlus_scraper.scrape_product_details(product)
 
         return updated_product
 
@@ -37,5 +44,9 @@ class Updater:
         products = await get_all_products()
         for product in products:
             self.logger.info(f"Updating product {product.product_id} with platform {product.platform}")
-            await self.update_product_details(product)
+            updated_product = await self.update_product_details(product)
+            if updated_product:
+                await self.product_pipeline.process_product(updated_product)
+
+    
 

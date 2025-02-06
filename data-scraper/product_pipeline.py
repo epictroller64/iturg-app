@@ -71,11 +71,16 @@ class ProductPipeline:
                 task = asyncio.create_task(self.parser.parse_product(full_product))
                 task.add_done_callback(self.on_product_parsed)
             else:
-                if existing_product.updated_at < now - timedelta(hours=self.config.hours_between_updates):
-                    await self.pricehistory_pipeline.process_price_history(existing_product.id, okidoki_product.price, now)
-                    full_product.id = existing_product.id
-                    full_product.created_at = existing_product.created_at
-                    await upsert_product(full_product)
+                if not okidoki_product.active:
+                    await self.archive_product(existing_product)
+                    return
+                else:
+                    if existing_product.updated_at < now - timedelta(hours=self.config.hours_between_updates):
+                        await self.pricehistory_pipeline.process_price_history(existing_product.id, okidoki_product.price, now)
+                        full_product.id = existing_product.id
+                        full_product.created_at = existing_product.created_at
+                        await upsert_product(full_product)
+
             self.logger.info(f"Processed product {okidoki_product.product_id} with price {okidoki_product.price}")
         except Exception as e:
             self.logger.error(f"Error processing Okidoki product {okidoki_product.product_id}: {str(e)}")
@@ -151,8 +156,13 @@ class ProductPipeline:
                 task = asyncio.create_task(self.parser.parse_product(full_product))
                 task.add_done_callback(self.on_product_parsed)
             else:
-                if existing_product.updated_at < datetime.now() - timedelta(hours=self.config.hours_between_updates):
-                    await self.pricehistory_pipeline.process_price_history(existing_product.id, hv_product.price, datetime.now())
+                if not hv_product.active:
+                    await self.archive_product(existing_product)
+                    return
+                else:
+                    if existing_product.updated_at < datetime.now() - timedelta(hours=self.config.hours_between_updates):
+                        await self.pricehistory_pipeline.process_price_history(existing_product.id, hv_product.price, datetime.now())
+
             self.logger.info(f"Processed Hinnavaatlus product {hv_product.product_id}")
         except Exception as e:
             self.logger.error(f"Error processing Hinnavaatlus product {hv_product.product_id}: {str(e)}")
