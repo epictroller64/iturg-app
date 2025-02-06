@@ -44,10 +44,10 @@ class Scraper:
             if self.next_scrape_time < datetime.now():
                 self.logger.info(f"Starting apple scraper at {datetime.now()}")
                 self.backup_manager.create_backup()
-                
-                await self.scrape_soov_products(["apple", "iphone", "imac", "macbook", "ipad"])
-                await self.scrape_okidoki_products(["apple", "iphone", "imac", "macbook", "ipad"])
                 await self.scrape_hinnavaatlus_products()
+                await self.scrape_okidoki_products(["apple", "iphone", "imac", "macbook", "ipad"])
+                await self.scrape_soov_products(["apple", "iphone", "imac", "macbook", "ipad"])
+
                 self._update_next_scrape_time()
             else:
                 self.logger.info(f"Waiting for next scrape at {self.next_scrape_time}")
