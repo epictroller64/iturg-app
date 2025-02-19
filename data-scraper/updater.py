@@ -3,10 +3,13 @@ from repository.product import get_all_products
 from product_pipeline import ProductPipeline
 from factory import LoggerFactory
 from backup_manager import BackupManager
-from models.database.Product import Product
 from services.scraping.soov import SoovScraper
 from services.scraping.okidoki import OkidokiScraper
 from services.scraping.hinnavaatlus import HinnavaatlusScraper
+from services.updaters.okidoki_updater import OkidokiUpdater
+from services.updaters.hinnavaatlus_updater import HinnavaatlusUpdater
+from services.updaters.soov_updater import SoovUpdater
+
 
 class Updater:
     config: ScraperConfig
@@ -16,7 +19,6 @@ class Updater:
     okidoki_scraper: OkidokiScraper
     hinnavaatlus_scraper: HinnavaatlusScraper
     backup_manager: BackupManager
-
 
 
     def __init__(self, config: ScraperConfig):
@@ -29,24 +31,12 @@ class Updater:
         self.backup_manager = BackupManager()
 
 
-    async def update_product_details(self, product: Product):
-        if product.platform == "soov":
-            updated_product = self.soov_scraper.scrape_product_details(product)
-        elif product.platform == "okidoki":
-            updated_product = self.okidoki_scraper.scrape_product_details(product)
-        elif product.platform == "hinnavaatlus":
-            updated_product = self.hinnavaatlus_scraper.scrape_product_details(product)
-
-        return updated_product
-
-    async def update_all_product_details(self):
-        self.backup_manager.create_backup()
-        products = await get_all_products()
-        for product in products:
-            self.logger.info(f"Updating product {product.product_id} with platform {product.platform}")
-            updated_product = await self.update_product_details(product)
-            if updated_product:
-                await self.product_pipeline.process_product(updated_product)
-
-    
+    async def update_all_products(self):
+        soov_updater = SoovUpdater(self.config)
+        okidoki_updater = OkidokiUpdater(self.config)
+        hinnavaatlus_updater = HinnavaatlusUpdater(self.config)
+        all_products = await get_all_products()
+        await okidoki_updater.update_okidoki_products(all_products)
+        await soov_updater.update_soov_products(all_products)
+        await hinnavaatlus_updater.update_hinnavaatlus_products(all_products)
 

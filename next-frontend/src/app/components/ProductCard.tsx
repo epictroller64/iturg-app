@@ -15,15 +15,7 @@ import ProductLike from "./product/ProductLike";
 export function ProductCard({ product }: { product: ProductPreviewDTO }) {
     return <div className="p-card h-[75vh] flex flex-col w-[20vw]">
         <div className="relative w-full h-[60%]">
-            {product.imageUrl.length > 0 ? (
-                <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
-            ) : (
-                <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                    <div className="text-gray-400 text-6xl">
-                        <FiSmartphone />
-                    </div>
-                </div>
-            )}
+            <ProductImage product={product} />
             <div className="absolute top-5 left-5  text-2xl p-blur-1 font-bold text-black px-2 rounded-full">{product.price} €</div>
             <div className="absolute top-2 right-5"><ProductLike id={product.id} /></div>
         </div>
@@ -43,6 +35,28 @@ export function ProductCard({ product }: { product: ProductPreviewDTO }) {
         </div>
     </div>
 }
+
+
+function ProductImage({ product }: { product: ProductPreviewDTO }) {
+    if (product.imageUrl.length > 0) {
+        return <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
+    }
+    function pickImageBasedOnDevice(device: string) {
+        const deviceLower = device.toLowerCase()
+        if (deviceLower.includes("iphone")) {
+            return <Image src="/generic-product-images/iphone.jpg" alt="iphone" fill className="object-cover" />
+        }
+        if (deviceLower.includes("macbook")) {
+            return <Image src="/generic-product-images/macbook.jpeg" alt="macbook" fill className="object-cover" />
+        }
+        if (deviceLower.includes("ipad")) {
+            return <Image src="/generic-product-images/ipad.jpg" alt="ipad" fill className="object-cover" />
+        }
+        return <Image src="/generic-product-images/apple.png" alt="apple" fill className="object-cover" />
+    }
+    return pickImageBasedOnDevice(product.device)
+}
+
 // Render product color as a small circle
 function Color({ color }: { color: string }) {
     switch (color.toLowerCase()) {

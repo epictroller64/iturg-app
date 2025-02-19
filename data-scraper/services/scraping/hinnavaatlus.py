@@ -5,7 +5,8 @@ from factory import LoggerFactory
 from models.scraping.ScrapedHVProduct import ScrapedHVProduct
 from datetime import datetime
 from services.parsers.hv_parser import HVParser
-import asyncio
+from typing import List
+
 
 class HinnavaatlusScraper():
     session: requests.Session
@@ -24,10 +25,11 @@ class HinnavaatlusScraper():
         self.logger = LoggerFactory.get_logger("hinnavaatlus")
 
 
-    async def scrape_product_details(self, product: PreScrapedHVProduct) -> ScrapedHVProduct:
+    async def scrape_product_details(self, product: PreScrapedHVProduct) -> List[ScrapedHVProduct]:
         # Get page content
         response = self.session.get(f"https://foorum.hinnavaatlus.ee/{product.link}", headers=self.headers)
         if response.status_code != 200:
+
             self.logger.error(f"Failed to scrape product details for {product.link} with status code {response.status_code}")
             return None
         

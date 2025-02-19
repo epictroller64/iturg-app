@@ -26,6 +26,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         return <NotFoundError />
     }
 
+    LocalApi.incrementPostView(productDetails.id) // increment post view without awaiting
+
     return (
         <div className="container mx-auto p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -35,7 +37,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                 </div>
                 <div>
                     <div className="flex flex-row justify-between">
-                        <h1 className="p-large-title mb-4">{productDetails.name}</h1>
+                        <h1 className="p-large-title mb-4 break-words">{productDetails.name}</h1>
                         <ProductLike id={productDetails.id} />
                     </div>
                     <div className="space-y-4">
@@ -228,7 +230,7 @@ function DateCard({ product }: { product: Product }) {
 function VisitProductButton({ productUrl, platform }: { productUrl: string, platform: string }) {
     return <div className="flex justify-center items-center flex-col">
         <a
-            href={platform === "hinnavaatlus" ? `https://foorum.hinnavaatlus.ee/${productUrl}` : productUrl}
+            href={platform === "hinnavaatlus" ? `https://foorum.hinnavaatlus.ee/${productUrl}` : platform === "okidoki" ? `https://okidoki.ee${productUrl}` : productUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="p-btn p-prim-col p-btn-lg"

@@ -9,7 +9,7 @@ from models.dto.ProductPreviewDTO import ProductPreviewDTO
 from models.database.Product import Product
 from database import setup_database
 from repository.product import init_cache
-
+from services.postviews import increment_post_view
 
 
 load_dotenv(override=True)
@@ -79,7 +79,7 @@ async def get_similar_products_handler(product_table_id: int):
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/api/filter/products", response_model=List[Product])
+@app.get("/api/filter/products", response_model=List[ProductPreviewDTO])
 async def get_filtered_products_handler(
     field: str = Query(..., description="Filter field (e.g. 'device')"),
     value: str = Query(..., description="Filter value (e.g. 'iphone')")
@@ -87,6 +87,13 @@ async def get_filtered_products_handler(
     try:
         products = await get_products_by_level2_group(field, value)
         return products
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/products/increment-post-view/{product_table_id}")
+async def increment_post_view_handler(product_table_id: int):
+    try:
+        await increment_post_view(product_table_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

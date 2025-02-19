@@ -46,7 +46,7 @@ export default function ProductLike({ id }: { id: string }) {
             </motion.button>
             <AnimatePresence>
                 <motion.div
-                    className="absolute z-20 -top-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-3 py-1 rounded-md text-sm whitespace-nowrap"
+                    className="absolute z-20 -top-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-3 py-1 rounded-md text-sm whitespace-wrap"
                     initial={{ opacity: 0, y: 10 }}
                     whileHover={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}

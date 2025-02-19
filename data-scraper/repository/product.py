@@ -7,6 +7,9 @@ from models.database.Product import Product
 from models.database.PriceHistory import PriceHistory
 from models.dto.ProductPreviewDTO import ProductPreviewDTO
 from repository.groups import get_level2_groups_by_product_table_id, get_level2_groups_by_device
+from repository.postview import get_post_views_by_product_id
+from asyncio import gather  # Add this import at the top of the file
+
 
 def create_product_from_row(row: dict) -> Product:
     """Helper function to create a Product object from a database row"""
@@ -178,13 +181,19 @@ async def get_product(product_table_id: int, prefer_cache: bool = True) -> Optio
         if rows and len(rows) > 0:
             product = create_product_from_row(dict(rows[0]))
 
-            # Get price history
-            price_history_rows = await select('SELECT * FROM price_history WHERE product_table_id = ?', (product.id,))
+            # Get price history and post views concurrently
+            price_history_rows, post_views = await gather(
+                select('SELECT * FROM price_history WHERE product_table_id = ?', (product.id,)),
+                get_post_views_by_product_id(product.id)
+            )
+            
             product.price_history = [PriceHistory(id=row[0], product_table_id=row[1], price=row[2], found_at=row[3]) for row in price_history_rows]
+            product.post_views = post_views[0].view_count if post_views else 0
 
             cache_store.set_product(product.id, product)
             return product
         return None
+
     except Exception as e:  
         print(f"Error getting product by id: {e}")
         return None
@@ -221,16 +230,21 @@ async def upsert_product(product: Product) -> int:
         print(f"Error upserting product: {e}")
         raise e
 
-async def get_products_by_level2_group(field: str, value: str) -> List[Product]:
+async def get_products_by_level2_group(field: str, value: str) -> List[ProductPreviewDTO]:
     valid_fields = {'device', 'chip', 'ram', 'screen_size', 'generation', 'storage', 'color', 'status', 'year', 'watch_mm'}
     
     if field not in valid_fields:
         raise ValueError(f"Invalid field: {field}. Allowed fields are: {', '.join(valid_fields)}")
     
     query = f'''
-        SELECT p.* 
+        SELECT p.id, p.product_id, p.name, ph.price, p.images, p.platform,
+               l2g.device, l2g.chip, l2g.ram, l2g.screen_size, l2g.generation,
+               l2g.storage, l2g.color, l2g.status, l2g.year, l2g.watch_mm
         FROM products p
         JOIN level2_groups l2g ON p.id = l2g.product_table_id 
+        LEFT JOIN (
+            SELECT product_table_id, price, found_at
+            FROM price_history
         WHERE l2g.{field} = ?
     '''
     

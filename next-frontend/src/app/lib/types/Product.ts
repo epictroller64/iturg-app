@@ -24,4 +24,5 @@ export type Product = {
     status: string | null;
     year: string | null;
     watch_mm: string | null;
+    post_views: number | null;
 }

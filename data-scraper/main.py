@@ -12,10 +12,11 @@ import os
 
 scraper = Scraper(ScraperConfig(max_pages=-1))
 updater = Updater(ScraperConfig(max_pages=-1))
+
 async def start():
     await setup_database()
-    await scraper.scrape_apple_products()
-    #await updater.update_all_product_details()
+    #await scraper.scrape_apple_products()
+    await updater.update_all_products()
 
 asyncio.run(start())
 #classifier = Classifier()

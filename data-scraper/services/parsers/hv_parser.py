@@ -25,7 +25,7 @@ class HVParser():
     def is_active_listing(self, soup: BeautifulSoup) -> bool:
         gen_span = soup.find('span', class_='gen')
         if not gen_span:
-            return False
+            return True
         return "teema puudub või on kustutatud" not in gen_span.text.strip()
 
 

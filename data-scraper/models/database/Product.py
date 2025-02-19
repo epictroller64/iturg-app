@@ -27,7 +27,7 @@ class Product(BaseModel):
     status: str | None = None
     year: str | None = None
     watch_mm: str | None = None
-
+    post_views: int | None = None
     model_config = {
         "from_attributes": True  # This replaces the old orm_mode=True
     }

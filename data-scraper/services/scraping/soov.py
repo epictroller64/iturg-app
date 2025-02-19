@@ -37,6 +37,7 @@ class SoovScraper:
         return None
 
     def update_product_details(self, product: ScrapedSoovProduct) -> ScrapedSoovProduct:
+        """Not used for now"""
         response = self._make_request(product.product_url)
         if response:
             soup = self.parser.get_soup(response.text)
@@ -53,14 +54,14 @@ class SoovScraper:
             product_id=product.id,
             name=product.name,
             price=product.price,
-            description=self.parser.get_product_description(soup),
-            categories=self.parser.get_product_category(soup),
-            images=self.parser.get_product_images(soup),
+            description=self.parser.get_product_description(soup) or '',
+            categories=self.parser.get_product_category(soup) or [],
+            images=self.parser.get_product_images(soup) or [],
             brand="NA",
-            seller_url=self.parser.get_product_seller_url(soup),
+            seller_url=self.parser.get_product_seller_url(soup) or '',
             product_url=product.href,
             location=self.parser.get_product_location(soup) or '',
-            time=self.parser.get_product_time(soup),
+            time=self.parser.get_product_time(soup) or '',
             active=self.parser.get_product_active_status(soup)
         )]
 

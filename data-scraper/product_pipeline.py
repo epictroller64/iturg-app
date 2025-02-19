@@ -173,5 +173,6 @@ class ProductPipeline:
         return product.description
     
     async def archive_product(self, product: Product):
+        self.logger.info(f"Archiving product {product.product_id}")
         await delete_product(product.id)
         await insert_product_to_archive(product)

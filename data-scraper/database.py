@@ -137,5 +137,12 @@ async def setup_database():
                    ")"
                    )
     
+    await cursor.execute("""
+        CREATE TABLE IF NOT EXISTS post_views (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_table_id INTEGER NOT NULL,
+            view_count INTEGER NOT NULL
+        )
+    """)
     await conn.commit()
     await conn.close()

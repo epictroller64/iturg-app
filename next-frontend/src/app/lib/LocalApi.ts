@@ -23,8 +23,12 @@ export const LocalApi = {
     },
     getProductsByIds: async (ids: string[]) => {
         return await get<ProductPreviewDTO[]>(`products/ids?ids=${ids.join(',')}`);
+    },
+    incrementPostView: async (id: string) => {
+        return await get<void>(`products/increment-post-view/${id}`);
     }
 }
+
 
 
 async function get<T>(endpoint: string): Promise<T> {

@@ -18,9 +18,9 @@ export default function HomeSearch() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
             />
-            <button className="absolute right-2 p-btn p-btn-round p-prim-col">
+            {/* <button className="absolute right-2 p-btn p-btn-round p-prim-col">
                 Otsi
-            </button>
+            </button> */}
         </div>
     </div>
 
