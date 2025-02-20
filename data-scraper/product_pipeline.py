@@ -160,6 +160,7 @@ class ProductPipeline:
                     await self.archive_product(existing_product)
                     return
                 else:
+                    
                     if existing_product.updated_at < datetime.now() - timedelta(hours=self.config.hours_between_updates):
                         await self.pricehistory_pipeline.process_price_history(existing_product.id, hv_product.price, datetime.now())
 
