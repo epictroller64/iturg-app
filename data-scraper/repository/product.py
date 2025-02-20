@@ -58,7 +58,8 @@ def create_product_preview_from_row(row: dict) -> ProductPreviewDTO:
         color=row['color'],
         status=row['status'],
         year=row['year'],
-        watch_mm=row['watch_mm']
+        watch_mm=row['watch_mm'],
+        days_since_added=(datetime.now() - datetime.fromisoformat(str(row['created_at']))).days
     )
 
 async def get_all_products_preview( search: Optional[str] = None,
@@ -99,11 +100,11 @@ async def get_all_products_preview( search: Optional[str] = None,
     
     valid_sort_columns = ["updated_at", "price", "name"]
     if sort_by not in valid_sort_columns:
-        sort_by = "updated_at"
+        sort_by = "created_at"
         
     # Map sort columns to their fully qualified names
     sort_column_map = {
-        "updated_at": "p.updated_at",
+        "created_at": "p.created_at",
         "price": "ph.price",
         "name": "p.name"
     }
@@ -114,7 +115,7 @@ async def get_all_products_preview( search: Optional[str] = None,
     pagination = f"LIMIT {page_size} OFFSET {(page - 1) * page_size}"
     
     query = f'''
-        SELECT p.id, p.product_id, p.name, ph.price, p.images, p.platform, l2g.device, l2g.chip, l2g.ram, l2g.screen_size, l2g.generation, l2g.storage, l2g.color, l2g.status, l2g.year, l2g.watch_mm
+        SELECT p.id, p.product_id, p.name, ph.price, p.images, p.platform, l2g.device, l2g.chip, l2g.ram, l2g.screen_size, l2g.generation, l2g.storage, l2g.color, l2g.status, l2g.year, l2g.watch_mm, p.created_at
         FROM products AS p 
         JOIN level2_groups l2g ON p.id = l2g.product_table_id
         LEFT JOIN (
@@ -276,7 +277,8 @@ async def get_similar_products(product_table_id: int) -> List[ProductPreviewDTO]
     base_query = f"""
         SELECT p.id, p.product_id, p.name, ph.price, p.images, p.platform,
                l2g.device, l2g.chip, l2g.ram, l2g.screen_size, l2g.generation,
-               l2g.storage, l2g.color, l2g.status, l2g.year, l2g.watch_mm
+               l2g.storage, l2g.color, l2g.status, l2g.year, l2g.watch_mm,
+               p.created_at
         FROM products p 
         JOIN level2_groups l2g ON p.id = l2g.product_table_id
         {price_subquery}
@@ -304,7 +306,8 @@ async def get_products_by_ids(ids: List[str]) -> List[ProductPreviewDTO]:
     query = f'''
         SELECT p.id, p.product_id, p.name, ph.price, p.images, p.platform,
                l2g.device, l2g.chip, l2g.ram, l2g.screen_size, l2g.generation,
-               l2g.storage, l2g.color, l2g.status, l2g.year, l2g.watch_mm
+               l2g.storage, l2g.color, l2g.status, l2g.year, l2g.watch_mm,
+               p.created_at
         FROM products p
         JOIN level2_groups l2g ON p.id = l2g.product_table_id
         LEFT JOIN (

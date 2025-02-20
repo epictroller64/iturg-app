@@ -18,5 +18,6 @@ class ProductPreviewDTO(BaseModel):
     status: str
     year: str
     watch_mm: str
+    days_since_added: int
 
 

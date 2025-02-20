@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const products = await LocalApi.getProducts("", 1, 10, "updated_at", "desc");
+  const products = await LocalApi.getProducts("", 1, 10, "created_at", "desc");
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center">
       <HomeSearch />

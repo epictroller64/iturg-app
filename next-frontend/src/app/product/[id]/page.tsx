@@ -8,6 +8,31 @@ import NotFoundError from "@/app/components/NotFoundError";
 import { ProductPreviewDTO } from "@/app/lib/types/ProductPreviewDTO";
 import ProductLike from "@/app/components/product/ProductLike";
 
+
+export async function generateMetadata({ params }: { params: { id: string } }) {
+    const productDetails = await LocalApi.getProductDetails(params.id);
+
+    if (!productDetails) {
+        return {
+            title: 'Toode ei leitud | Apple Toodete Hinnavõrdlus',
+            description: 'Kahjuks ei leitud otsitud toodet.',
+        }
+    }
+
+    return {
+        title: `${productDetails.name} | Apple Toodete Hinnavõrdlus`,
+        description: `Vaata ${productDetails.name} hinda ja võrdle pakkumisi. Jälgi hinna muutusi ja leia parim pakkumine.`,
+        keywords: `${productDetails.name}, ${productDetails.category.join(', ')}, kasutatud, apple, hinnavõrdlus`,
+        openGraph: {
+            title: `${productDetails.name} | Apple Toodete Hinnavõrdlus`,
+            description: `Vaata ${productDetails.name} hinda ja võrdle pakkumisi Eesti populaarsematel turgudel`,
+            type: 'website',
+            locale: 'et_EE',
+        }
+    }
+}
+
+
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     let productDetails: Product | null = null;

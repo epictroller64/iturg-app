@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type SortOption = 'updated_at' | 'price' | 'title';
+type SortOption = 'created_at' | 'price' | 'title';
 type SortDirection = 'asc' | 'desc';
 
 interface SearchState {
@@ -19,7 +19,7 @@ interface SearchState {
 
 export const searchStore = create<SearchState>((set) => ({
     search: '',
-    sortBy: 'updated_at',
+    sortBy: 'created_at',
     sortDirection: 'desc',
     filters: {},
     setSearch: (search) => set({ search }),

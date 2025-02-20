@@ -13,7 +13,7 @@ interface FilterOptions {
 
 export const LocalApi = {
     getProducts: async (search: string, page: number, pageSize: number, sortBy: string, sortDirection: string, filters?: FilterOptions) => {
-        return await get<ProductPreviewDTO[]>(`products/search?search=${search}&page=${page}&page_size=${pageSize}&sort_by=${sortBy}&sort_direction=${sortDirection}&filters=${JSON.stringify(filters)}`);
+        return await get<ProductPreviewDTO[]>(`products/search?search=${search}&page=${page}&page_size=${pageSize}&sort_by=${sortBy}&sort_direction=${sortDirection}${filters ? `&filters=${JSON.stringify(filters)}` : ""}`);
     },
     getProductDetails: async (id: string) => {
         return await get<Product>(`products/id/${id}`);

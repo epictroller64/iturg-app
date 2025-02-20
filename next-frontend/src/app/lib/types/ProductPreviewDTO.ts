@@ -16,4 +16,5 @@ export type ProductPreviewDTO = {
     status: string;
     year: string;
     watch_mm: string;
+    days_since_added: number;
 }

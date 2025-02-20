@@ -2,7 +2,6 @@
 import Image from "next/image";
 import { ProductPreviewDTO } from "../lib/types/ProductPreviewDTO";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { FiSmartphone } from "react-icons/fi";
 import { FiCpu } from "react-icons/fi";
 import { FiServer } from "react-icons/fi";
@@ -18,6 +17,7 @@ export function ProductCard({ product }: { product: ProductPreviewDTO }) {
             <ProductImage product={product} />
             <div className="absolute top-5 left-5  text-2xl p-blur-1 font-bold text-black px-2 rounded-full">{product.price} €</div>
             <div className="absolute top-2 right-5"><ProductLike id={product.id} /></div>
+            <DaysSinceAdded daysSinceAdded={product.days_since_added} />
         </div>
         <div className="flex flex-col justify-between p-2 h-[40%]">
             <div className="flex flex-col justify-between h-[80%]">
@@ -134,75 +134,23 @@ function Platform({ platform }: { platform: string }) {
     }
 }
 
-
-export function ProductCard2({ product }: { product: ProductPreviewDTO }) {
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white rounded-xl shadow-sm overflow-hidden group relative p-card"
-        >
-            <div className="relative w-full h-56">
-                {product.imageUrl && (
-                    <div className="overflow-hidden">
-                        <motion.div
-                            whileHover={{ scale: 1.1 }}
-                            transition={{
-                                duration: 0.4,
-                                ease: "easeOut"
-                            }}
-                            className="relative w-full h-56"
-                        >
-                            <Image
-                                src={product.imageUrl}
-                                alt={product.name}
-                                loading="lazy"
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                        </motion.div>
-                    </div>
-                )}
-            </div>
-            <div className="p-6">
-                <motion.h3
-                    className="font-semibold text-xl text-gray-900 mb-2"
-                    whileHover={{ x: 5 }}
-                    transition={{ duration: 0.2 }}
-                >
-                    {product.name}
-                </motion.h3>
-                <div className="space-y-2">
-                    <div className="flex justify-between items-center mt-4">
-                        <motion.p
-                            className="text-2xl font-bold text-blue-600"
-                            whileHover={{ scale: 1.1 }}
-                        >
-                            {product.price} €
-                        </motion.p>
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <Link
-                                href={`/product/${product.id}`}
-                                className="p-btn p-prim-col"
-                            >
-                                Vaata üksikasju →
-                            </Link>
-                        </motion.div>
-                    </div>
-                </div>
-            </div>
-            <motion.div
-                className="absolute bottom-0 left-0 w-full h-1 bg-blue-500"
-                initial={{ scaleX: 0 }}
-                whileHover={{ scaleX: 1 }}
-                transition={{ duration: 0.3 }}
-            />
-        </motion.div>
-    );
+function DaysSinceAdded({ daysSinceAdded }: { daysSinceAdded: number }) {
+    if (daysSinceAdded > 1) {
+        return <div className="absolute bottom-2 right-2 text-sm bg-black/50 text-white px-2 py-1 rounded">
+            {daysSinceAdded} päeva tagasi
+        </div>
+    }
+    else if (daysSinceAdded === 1) {
+        return <div className="absolute bottom-2 right-2 text-sm bg-black/50 text-white px-2 py-1 rounded">
+            Eile
+        </div>
+    }
+    else if (daysSinceAdded === 0) {
+        return <div className="absolute bottom-2 right-2 text-sm bg-black/50 text-white px-2 py-1 rounded">
+            Täna
+        </div>
+    }
+    else {
+        return null
+    }
 }

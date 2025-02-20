@@ -38,7 +38,7 @@ async def get_products_handler(
     search: Optional[str] = Query(None),
     page: Optional[int] = Query(1),
     page_size: Optional[int] = Query(10),
-    sort_by: Optional[str] = Query("updated_at"),
+    sort_by: Optional[str] = Query("created_at"),
     sort_order: Optional[str] = Query("desc"),
     filters: Optional[str] = Query(None, description="JSON string of filters, e.g. '{\"device\":\"iphone\",\"color\":\"red\"}'")
 ):

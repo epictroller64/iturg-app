@@ -13,13 +13,13 @@ export default function SortingControls() {
                 onChange={(e) => {
                     const [newSortBy, newDirection] = e.target.value.split('-');
                     setSorting(
-                        newSortBy as 'updated_at' | 'price' | 'title',
+                        newSortBy as 'created_at' | 'price' | 'title',
                         newDirection as 'asc' | 'desc'
                     );
                 }}
             >
-                <option value="updated_at-desc">Uuemad ees</option>
-                <option value="updated_at-asc">Vanemad ees</option>
+                <option value="created_at-desc">Uuemad ees</option>
+                <option value="created_at-asc">Vanemad ees</option>
                 <option value="price-asc">Hind kasvav</option>
                 <option value="price-desc">Hind kahanev</option>
                 <option value="title-asc">Nimi A-Z</option>
