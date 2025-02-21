@@ -8,25 +8,29 @@ import SortingControls from "./SortingControls";
 import FilterControls from "./FilterControls";
 import { ProductPreviewDTO } from "../lib/types/ProductPreviewDTO";
 import ProductSkeleton from "./product/ProductSkeleton";
+import Pagination from "./Pagination";
 
 
 
 export default function SearchResults() {
-    const { search, sortBy, sortDirection, filters } = searchStore();
+    const { search, sortBy, sortDirection, filters, page, pageSize, setPage } = searchStore();
 
-    const { data: products = [], isLoading } = useQuery({
-        queryKey: ['products', search, sortBy, sortDirection, filters],
+    const { data: filterResponse = { data: [], page: 1, page_size: pageSize, max_pages: 1 }, isLoading } = useQuery({
+        queryKey: ['products', search, sortBy, sortDirection, filters, page, pageSize],
         queryFn: () => LocalApi.getProducts(
             search,
-            1,
-            10,
+            page,
+            pageSize,
             sortBy,
             sortDirection,
             filters
         )
     });
-    console.log(products)
-    console.log(isLoading)
+    console.log(filterResponse)
+    function onPageChange(page: number) {
+        setPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
     return (
         <div className="flex gap-6 w-full">
             <div className="flex-shrink-0">
@@ -37,7 +41,8 @@ export default function SearchResults() {
                 <div className="flex justify-between items-center mb-6">
                     <SortingControls />
                 </div>
-                <Products isLoading={isLoading} products={products} />
+                <Products isLoading={isLoading} products={filterResponse.data} />
+                <Pagination currentPage={page} totalPages={filterResponse.max_pages} onPageChange={onPageChange} />
             </div>
         </div>
     );

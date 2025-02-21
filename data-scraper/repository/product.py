@@ -1,8 +1,10 @@
 from datetime import datetime
+import math
 from cache_store import CacheStore
 from database import select, execute
 import json
 from typing import Optional, List
+from models.response.Request import ProductPreviewResponse
 from models.database.Product import Product
 from models.database.PriceHistory import PriceHistory
 from models.dto.ProductPreviewDTO import ProductPreviewDTO
@@ -67,7 +69,7 @@ async def get_all_products_preview( search: Optional[str] = None,
     page_size: int = 10,
     sort_by: str = "updated_at",
     sort_order: str = "desc",
-    filters: Optional[str] = None) -> List[ProductPreviewDTO]:
+    filters: Optional[str] = None) -> ProductPreviewResponse:
     """Get all products from the database with their latest prices"""
     
     sort_order = "DESC" if sort_order == "desc" else "ASC"
@@ -102,7 +104,6 @@ async def get_all_products_preview( search: Optional[str] = None,
     if sort_by not in valid_sort_columns:
         sort_by = "created_at"
         
-    # Map sort columns to their fully qualified names
     sort_column_map = {
         "created_at": "p.created_at",
         "price": "ph.price",
@@ -136,7 +137,35 @@ async def get_all_products_preview( search: Optional[str] = None,
     if not rows:
         return []
         
-    return [create_product_preview_from_row(row) for row in rows]
+    # First get total count
+    count_query = f'''
+        SELECT COUNT(DISTINCT p.id) as total
+        FROM products AS p 
+        JOIN level2_groups l2g ON p.id = l2g.product_table_id
+        LEFT JOIN (
+            SELECT product_table_id, price, found_at
+            FROM price_history
+            WHERE (product_table_id, found_at) IN (
+                SELECT product_table_id, MAX(found_at)
+                FROM price_history
+                GROUP BY product_table_id
+            )
+        ) ph ON p.id = ph.product_table_id
+        {where_sql}
+    '''
+    
+    count_result = await select(count_query, params)
+    total_count = count_result[0]['total'] if count_result else 0
+    max_pages = math.ceil(total_count / page_size)
+
+    products = [create_product_preview_from_row(row) for row in rows]
+    
+    return ProductPreviewResponse(
+        page=page,
+        page_size=page_size,
+        max_pages=max_pages,
+        data=products
+    )
 
 async def get_all_products() -> List[Product]:
     """Get all products from the database"""

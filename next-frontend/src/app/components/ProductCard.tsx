@@ -39,20 +39,20 @@ export function ProductCard({ product }: { product: ProductPreviewDTO }) {
 
 function ProductImage({ product }: { product: ProductPreviewDTO }) {
     if (product.imageUrl.length > 0) {
-        return <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
+        return <Image sizes="100vw" src={product.imageUrl} alt={product.name} fill className="object-cover" />
     }
     function pickImageBasedOnDevice(device: string) {
         const deviceLower = device.toLowerCase()
         if (deviceLower.includes("iphone")) {
-            return <Image src="/generic-product-images/iphone.jpg" alt="iphone" fill className="object-cover" />
+            return <Image sizes="100vw" src="/generic-product-images/iphone.jpg" alt="iphone" fill className="object-cover" />
         }
         if (deviceLower.includes("macbook")) {
-            return <Image src="/generic-product-images/macbook.jpeg" alt="macbook" fill className="object-cover" />
+            return <Image sizes="100vw" src="/generic-product-images/macbook.jpeg" alt="macbook" fill className="object-cover" />
         }
         if (deviceLower.includes("ipad")) {
-            return <Image src="/generic-product-images/ipad.jpg" alt="ipad" fill className="object-cover" />
+            return <Image sizes="100vw" src="/generic-product-images/ipad.jpg" alt="ipad" fill className="object-cover" />
         }
-        return <Image src="/generic-product-images/apple.png" alt="apple" fill className="object-cover" />
+        return <Image sizes="100vw" src="/generic-product-images/apple.png" alt="apple" fill className="object-cover" />
     }
     return pickImageBasedOnDevice(product.device)
 }

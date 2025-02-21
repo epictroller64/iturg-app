@@ -10,6 +10,7 @@ from models.database.Product import Product
 from database import setup_database
 from repository.product import init_cache
 from services.postviews import increment_post_view
+from models.response.Request import ProductPreviewResponse
 
 
 load_dotenv(override=True)
@@ -33,7 +34,7 @@ app.add_middleware(
 )
 
 
-@app.get("/api/products/search", response_model=List[ProductPreviewDTO])
+@app.get("/api/products/search", response_model=ProductPreviewResponse)
 async def get_products_handler(
     search: Optional[str] = Query(None),
     page: Optional[int] = Query(1),
@@ -43,8 +44,8 @@ async def get_products_handler(
     filters: Optional[str] = Query(None, description="JSON string of filters, e.g. '{\"device\":\"iphone\",\"color\":\"red\"}'")
 ):
     try:
-        products = await get_all_products_preview(search, page, page_size, sort_by, sort_order, filters)
-        return products
+        filter_response = await get_all_products_preview(search, page, page_size, sort_by, sort_order, filters)
+        return filter_response
     except Exception as e:
         print('Error in get_products_handler:', e)
         raise HTTPException(status_code=500, detail=str(e))

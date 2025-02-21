@@ -18,17 +18,15 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  viewport: 'width=device-width, initial-scale=1',
-  themeColor: '#f9fafb'
 };
 
 export default async function Home() {
-  const products = await LocalApi.getProducts("", 1, 10, "created_at", "desc");
+  const filterResponse = await LocalApi.getProducts("", 1, 10, "created_at", "desc");
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center">
       <HomeSearch />
       <SearchResults />
-      <LatestProducts products={products} />
+      <LatestProducts products={filterResponse.data} />
     </main>
   );
 }
