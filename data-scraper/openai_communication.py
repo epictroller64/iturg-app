@@ -12,13 +12,13 @@ T = TypeVar('T')
 
 class OpenAICommunication():
 
-    def __init__(self, version: str = "deepseek-chat"):
+    def __init__(self, version: str = "o4-mini"):
         self.api_key = os.getenv("OPENAI_API_KEY")
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY is not set in the environment variables")
         """Initialize parser with OpenAI API key"""
         self.logger = LoggerFactory.get_logger("OpenAI")
-        self.openai = AsyncOpenAI(api_key=self.api_key, base_url="https://api.deepseek.com")
+        self.openai = AsyncOpenAI(api_key=self.api_key)
         self.version = version
 
     async def ask_openai(self, messages: List[dict], response_format: Type[T] = None) -> T | None:
@@ -29,7 +29,7 @@ class OpenAICommunication():
                 messages=messages,
                 response_format=response_format
             )
-
+            
             return response.choices[0].message.parsed
         except Exception as e:
             self.logger.error(f"Error retrieving OpenAI response: {str(e)}")

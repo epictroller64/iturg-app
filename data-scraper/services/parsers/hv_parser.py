@@ -26,7 +26,9 @@ class HVParser():
         gen_span = soup.find('span', class_='gen')
         if not gen_span:
             return True
-        return "teema puudub või on kustutatud" not in gen_span.text.strip()
+        if "teema puudub või on kustutatud" in gen_span.text.strip():
+            return False
+        return True
 
 
     def parse_seller_url_from_post(self, soup: BeautifulSoup) -> str:
