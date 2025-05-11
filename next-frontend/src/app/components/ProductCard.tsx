@@ -8,6 +8,7 @@ import { FiServer } from "react-icons/fi";
 import { FiTablet } from "react-icons/fi";
 import { FiWatch } from "react-icons/fi";
 import ProductLike from "./product/ProductLike";
+import { useState } from "react";
 
 
 
@@ -38,23 +39,45 @@ export function ProductCard({ product }: { product: ProductPreviewDTO }) {
 
 
 function ProductImage({ product }: { product: ProductPreviewDTO }) {
-    if (product.imageUrl.length > 0) {
-        return <Image sizes="100vw" src={product.imageUrl} alt={product.name} fill className="object-cover" />
-    }
+    const imageSizes = "(max-width: 768px) 90vw, 20vw";
+    const [loaded, setLoaded] = useState(false)
     function pickImageBasedOnDevice(device: string) {
+        if (product.imageUrl.length > 0) {
+            return <Image
+                onLoad={() => setLoaded(true)}
+                sizes={imageSizes}
+                src={product.imageUrl}
+                alt={product.name}
+                fill
+                className="object-cover" />
+        }
         const deviceLower = device.toLowerCase()
         if (deviceLower.includes("iphone")) {
-            return <Image sizes="100vw" src="/generic-product-images/iphone.jpg" alt="iphone" fill className="object-cover" />
+            return <Image
+                onLoad={() => setLoaded(true)}
+                sizes={imageSizes} src="/generic-product-images/iphone.jpg" alt="iphone" fill className="object-cover" />
         }
         if (deviceLower.includes("macbook")) {
-            return <Image sizes="100vw" src="/generic-product-images/macbook.jpeg" alt="macbook" fill className="object-cover" />
+            return <Image
+
+                onLoad={() => setLoaded(true)}
+                sizes={imageSizes} src="/generic-product-images/macbook.jpeg" alt="macbook" fill className="object-cover" />
         }
         if (deviceLower.includes("ipad")) {
-            return <Image sizes="100vw" src="/generic-product-images/ipad.jpg" alt="ipad" fill className="object-cover" />
+            return <Image
+
+                onLoad={() => setLoaded(true)}
+                sizes={imageSizes} src="/generic-product-images/ipad.jpg" alt="ipad" fill className="object-cover" />
         }
-        return <Image sizes="100vw" src="/generic-product-images/apple.png" alt="apple" fill className="object-cover" />
+        return <Image
+
+            onLoad={() => setLoaded(true)}
+            sizes={imageSizes} src="/generic-product-images/apple.png" alt="apple" fill className="object-cover" />
     }
-    return pickImageBasedOnDevice(product.device)
+    return <div className="flex">
+        {!loaded && <div className="absolute inset-0 bg-gray-200 animate-pulse rounded-lg" />}
+        {pickImageBasedOnDevice(product.device)}
+    </div>
 }
 
 // Render product color as a small circle

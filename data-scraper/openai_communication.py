@@ -7,15 +7,18 @@ from pydantic import BaseModel
 
 T = TypeVar('T')
 
+
+#### Switched to DeepSeek as it is cheaper
+
 class OpenAICommunication():
 
-    def __init__(self, version: str = "gpt-4o"):
+    def __init__(self, version: str = "deepseek-chat"):
         self.api_key = os.getenv("OPENAI_API_KEY")
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY is not set in the environment variables")
         """Initialize parser with OpenAI API key"""
         self.logger = LoggerFactory.get_logger("OpenAI")
-        self.openai = AsyncOpenAI(api_key=self.api_key)
+        self.openai = AsyncOpenAI(api_key=self.api_key, base_url="https://api.deepseek.com")
         self.version = version
 
     async def ask_openai(self, messages: List[dict], response_format: Type[T] = None) -> T | None:

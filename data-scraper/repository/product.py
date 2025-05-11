@@ -135,7 +135,12 @@ async def get_all_products_preview( search: Optional[str] = None,
     
     rows = await select(query, params)
     if not rows:
-        return []
+        return ProductPreviewResponse(
+            page=page,
+            page_size=0,
+            max_pages=0,
+            data=[]
+        )
         
     # First get total count
     count_query = f'''

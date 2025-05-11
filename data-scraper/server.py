@@ -63,9 +63,9 @@ async def get_product_handler(product_table_id: int):
     
 
 @app.get("/api/products/ids", response_model=List[ProductPreviewDTO])
-async def get_products_by_ids_handler(ids: List[int] = Query(...)):
+async def get_products_by_ids_handler(ids: str = Query(...)):
     try:
-        products = await get_products_by_ids([str(id) for id in ids])
+        products = await get_products_by_ids([id for id in ids.split(',')])
         return products
     except Exception as e:
         print(e)

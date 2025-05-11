@@ -26,6 +26,7 @@ export default function ProductGallery({ images, name }: { images: string[], nam
         <div className="flex justify-center items-center relative h-[40vw] p-card overflow-hidden">
             <Image
                 fill
+                sizes="(max-width: 768px) 90vw, 40vw"
                 src={selectedImage}
                 alt={name}
                 className="w-full object-contain"
@@ -38,6 +39,7 @@ export default function ProductGallery({ images, name }: { images: string[], nam
                     className="flex justify-center items-center relative h-[100px] cursor-pointer p-card overflow-hidden hover:border-1 hover:border-blue-500">
                     <Image
                         fill
+                        sizes="(max-width: 768px) 22vw, 10vw"
                         src={image}
                         alt={`${name} ${index + 2}`}
                         className="w-full object-contain"
