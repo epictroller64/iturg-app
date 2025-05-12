@@ -3,7 +3,7 @@ import { ProductPreviewDTO } from "./types/ProductPreviewDTO";
 import { FilterResponse } from "./types/FilterResponse";
 
 
-const baseUrl = "http://localhost:8000/api"
+const baseUrl = process.env.API_HOST || "http://localhost:8000/api"
 
 interface FilterOptions {
     minPrice?: number;
