@@ -12,5 +12,5 @@ COPY . .
 EXPOSE 7010
 
 # Run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7010"]
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "7010"]
 
