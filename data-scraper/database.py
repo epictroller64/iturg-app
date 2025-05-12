@@ -2,24 +2,31 @@ import aiosqlite
 import os
 from typing import List
 from aiosqlite import Row
-import asyncio
+from typing import Tuple
 # Add at the top of the file with other imports
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 DATABASE_PATH = os.path.join(PROJECT_ROOT, 'products.db')
 
-async def execute_batch(query: str, params: List[tuple]):
-    """Execute a batch of queries"""
+
+async def execute_batch(query: str, params: List[Tuple]):
+    """Execute a batch of queries asynchronously."""
+    conn = None
+    cursor = None
     try:
         conn = await get_db_connection()
         cursor = await conn.cursor()
         await cursor.executemany(query, params)
         await conn.commit()
-        await conn.close()
     except Exception as e:
-        await conn.rollback()
-        await conn.close()
-        await cursor.close()
+        if conn:
+            await conn.rollback()
         raise e
+    finally:
+        if cursor:
+            await cursor.close()
+        if conn:
+            await conn.close()
+
 
 async def execute(query: str, params: tuple = ()):
     """Execute a query and return the lastrowid"""
@@ -51,7 +58,7 @@ async def select(query: str, params: tuple = ()) -> List[Row]:
         rows = await cursor.fetchall()
         await cursor.close()
         await conn.close()
-        return rows
+        return list(rows)
     except Exception as e:
         print(e)
         await conn.rollback()
