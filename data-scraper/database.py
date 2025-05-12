@@ -4,7 +4,7 @@ from typing import List
 from aiosqlite import Row
 import asyncio
 # Add at the top of the file with other imports
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 DATABASE_PATH = os.path.join(PROJECT_ROOT, 'products.db')
 
 async def execute_batch(query: str, params: List[tuple]):
@@ -67,7 +67,7 @@ async def setup_database():
     """Initialize SQLite database and create necessary tables"""
     conn = await get_db_connection()
     cursor = await conn.cursor()
-    
+
     await cursor.execute('''
         CREATE TABLE IF NOT EXISTS products_archive (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -136,7 +136,7 @@ async def setup_database():
                    "watch_mm TEXT "
                    ")"
                    )
-    
+
     await cursor.execute("""
         CREATE TABLE IF NOT EXISTS post_views (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
