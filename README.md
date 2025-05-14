@@ -7,7 +7,7 @@ This application scrapes Apple listings from:
 
 Scraper is supposed to run daily and all price changes are recorded in the database. Currently not updating the data very often to keep OpenAI spending low.
 
-Pet project to help people flipping Apple products.
+Pet project to help people flipping Apple products (I also had a suitable domain name laying around, with no use).
 
 ## Features
 
